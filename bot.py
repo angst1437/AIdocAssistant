@@ -2,7 +2,7 @@ import asyncio
 import logging
 import sys
 
-from os import getenv, makedirs, path
+from os import getenv, makedirs, path, remove
 from docx import Document
 
 from aiogram import Bot, Dispatcher, types, F
@@ -50,8 +50,6 @@ class Tg_Bot(Bot):
         """
         Сценарий обработки документа. Сохраняет документ на локальный диск,
         проводит его анализ и возвращает docx с рекомендациями.
-
-        TODO: Сделать удаление локального файла после его обработки
         """
         file_id = message.document.file_id
         file_name = message.document.file_name
@@ -87,6 +85,8 @@ class Tg_Bot(Bot):
         new_doc.save(self.OUTPUT)
         doc = FSInputFile(self.OUTPUT)
         await message.answer_document(doc)
+
+        remove(file_path) # удаляет файл пользователя после обработки
 
     def get_dp(self):
         """
