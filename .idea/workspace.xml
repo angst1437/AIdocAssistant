@@ -4,8 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c7969a83-bf49-42d8-89a8-3a77d5eb1e68" name="Changes" comment="add user's files removing">
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    <list default="true" id="c7969a83-bf49-42d8-89a8-3a77d5eb1e68" name="Changes" comment="add readme w/functional requirements">
+      <change afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/scripts.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/styles.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -96,7 +99,7 @@
       <workItem from="1741771918056" duration="1632000" />
       <workItem from="1741773614112" duration="1692000" />
       <workItem from="1741951656228" duration="2601000" />
-      <workItem from="1742040373978" duration="1135000" />
+      <workItem from="1742040373978" duration="2792000" />
     </task>
     <task id="LOCAL-00001" summary="init commit">
       <option name="closed" value="true" />
@@ -122,7 +125,15 @@
       <option name="project" value="LOCAL" />
       <updated>1741706725164</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="add readme w/functional requirements">
+      <option name="closed" value="true" />
+      <created>1742041602930</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1742041602930</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -143,7 +154,8 @@
     <MESSAGE value="init commit" />
     <MESSAGE value="bot.py wrapped into class" />
     <MESSAGE value="add user's files removing" />
-    <option name="LAST_COMMIT_MESSAGE" value="add user's files removing" />
+    <MESSAGE value="add readme w/functional requirements" />
+    <option name="LAST_COMMIT_MESSAGE" value="add readme w/functional requirements" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/CSUprac$bot.coverage" NAME="bot Coverage Results" MODIFIED="1741706658478" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
