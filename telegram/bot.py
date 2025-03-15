@@ -5,20 +5,20 @@ import sys
 from os import getenv, makedirs, path, remove
 from docx import Document
 
-from aiogram import Bot, Dispatcher, types, F
+from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import Message, FSInputFile
 from dotenv import load_dotenv
 
-from analys import analysis_conclusion, analysis_introduction, analysis_introduction_and_conclusion,analysis_literList
-from CheckStructure import check_sections_in_docx, write_sections_to_docx
+from logic.analys import analysis_conclusion, analysis_introduction, analysis_introduction_and_conclusion,analysis_literList
+from logic.CheckStructure import check_sections_in_docx, write_sections_to_docx
 
 
 load_dotenv()
 TOKEN = getenv('TOKEN')
-DOWNLOAD_PATH = "files"
+DOWNLOAD_PATH = "../files"
 OUTPUT = "рекомендованные исправления.docx"
 
 

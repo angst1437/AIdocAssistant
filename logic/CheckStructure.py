@@ -1,5 +1,5 @@
 from docx import Document
-import CheckTitle
+from logic import CheckTitle
 
 section_keywords = ['список исполнителей','реферат',
                     'содержание', 'термины и определения', 'перечень сокращений и обозначений',
