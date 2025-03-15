@@ -1,0 +1,28 @@
+[project]
+name = "docassistant"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Alexander Kleptsov",email = "angst1437@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+]
+
+[tool.poetry]
+readme = "README.md"
+package-mode = false
+
+
+[tool.poetry.group.dev.dependencies]
+asyncio = "^3.4.3"
+django = "^5.1.7"
+logging = "^0.4.9.6"
+ollama = "^0.4.7"
+dotenv = "^0.9.9"
+python-docx = "^1.1.2"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
