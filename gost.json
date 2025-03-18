@@ -1,8 +1,6 @@
 {
   "required_sections": ["Титульный лист", "Список исполнителей", "Содержание", "Введение", "Основная часть", "Заключение"],
-  "minimal_font_size": 12,
+  "font_size": 14,
   "interval": 1.5,
-  "font": "Times New Roman",
-
-
+  "font": "Times New Roman"
 }
