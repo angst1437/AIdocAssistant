@@ -1,4 +1,5 @@
 import json
+from weakref import finalize
 
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -54,13 +55,15 @@ class DocPartition:
             if p.text.strip() == "":
                 continue
 
-            if ((p.alignment == WD_ALIGN_PARAGRAPH.CENTER or any([word in p.text.lower().strip() for word in self.keywords]))
-                    and all([is_title_read, is_content_read])):
+            is_header = p.alignment == WD_ALIGN_PARAGRAPH.CENTER or any([word in p.text.lower().strip() for word in self.keywords])
+            if is_header and all([is_title_read, is_content_read]):
                 print(p.text)
                 if unnamed_part_started:
-                    parts["part" if unnamed_parts_counter == 0 else "part" + str(unnamed_parts_counter)] = " ".join(temp_container)
-                    unnamed_parts_counter += 1
-                    temp_container.clear()
+                    print(temp_container, len(temp_container))
+                    if len(temp_container) > 1:
+                        parts["part" if unnamed_parts_counter == 0 else "part" + str(unnamed_parts_counter)] = " ".join(temp_container)
+                        unnamed_parts_counter += 1
+                        temp_container.clear()
                     unnamed_part_started = False
 
                 if not unnamed_part_started:
@@ -92,7 +95,6 @@ class DocPartition:
 if __name__ == '__main__':
     doc_part = DocPartition("../doc.docx")
     parts = doc_part.make_partition()
-    print(parts)
     for key, value in parts.items():
         print(key, value)
     # print(llama.title(input()))
