@@ -1,14 +1,18 @@
+import json
+
 from docx import Document
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 import docx2pdf
 import PyPDF2
 import re
 import llama
 import os
-
+import json
 
 class DocPartition:
 
-    # TODO: сделать чтение одноразовым. Когда будут готовы функции на полное деление документа, их надо объеденить в одну.
+    with open("../gost.json", "r", encoding="UTF-8") as f:
+        keywords = json.load(f)["keywords"]
 
     def __init__(self, file_path):
         """
@@ -29,55 +33,66 @@ class DocPartition:
     #     os.remove(self.pdf_path)
     #     os.remove(self.pdf_path[:-4] + '.docx')
 
-    def make_partition(self):
-        # placeholder для функции сегментации документа
-        pass
-
-    def get_title(self):
-        """
-        Функция получает титульный лист через первую страницу pdf. Сам текст берется в docx, т.к. получение текста из пдф
-        периодически имеет артефакты.
-        """
-
-        title = []
-
+    def read_pdf(self):
         with open(self.pdf_path, "rb") as f:
             reader = PyPDF2.PdfReader(f)
             pdf_title_end = reader.pages[0].extract_text().split()[-1]
-        for p in self.doc.paragraphs:
-            if p.text.strip() == "":
-                continue
-            title.append(p.text)
-            if p.text.split()[-1] == pdf_title_end.strip():
-                return " ".join(title)
-
-    def get_content(self):
-        """Функция работает аналогично get_title"""
-        content = []
-        is_content = False
-
-        with open(self.pdf_path, "rb") as f:
-            reader = PyPDF2.PdfReader(f)
             pdf_content_start = reader.pages[1].extract_text().split()[1]
             pdf_content_end = reader.pages[1].extract_text().split()[-1]
-            print(pdf_content_start, pdf_content_end.strip())
+        return [pdf_title_end, pdf_content_end]
+
+    def make_partition(self):
+        parts = {}
+        unnamed_parts_counter = 0
+        unnamed_part_started = False
+        temp_container = []
+        is_title_read = False
+        is_content_read = False
+        pdf_title_end, pdf_content_end = self.read_pdf()
 
         for p in self.doc.paragraphs:
             if p.text.strip() == "":
                 continue
-            if p.text.split()[0] == pdf_content_start:
-                is_content = True
-            if is_content:
-                content.append(p.text)
-            if p.text.split()[-1] == pdf_content_end:
-                print(p.text.split()[-1])
-                return content
+
+            if ((p.alignment == WD_ALIGN_PARAGRAPH.CENTER or any([word in p.text.lower().strip() for word in self.keywords]))
+                    and all([is_title_read, is_content_read])):
+                print(p.text)
+                if unnamed_part_started:
+                    parts["part" if unnamed_parts_counter == 0 else "part" + str(unnamed_parts_counter)] = " ".join(temp_container)
+                    unnamed_parts_counter += 1
+                    temp_container.clear()
+                    unnamed_part_started = False
+
+                if not unnamed_part_started:
+                    unnamed_part_started = True
+
+            if unnamed_part_started:
+                temp_container.append(p.text.strip())
+
+
+            if not is_title_read:
+                temp_container.append(p.text.strip())
+                if p.text.split()[-1] == pdf_title_end.strip():
+                    parts["title"] = " ".join(temp_container)
+                    temp_container.clear()
+                    is_title_read = True
+                    continue # переход на следующий параграф
+
+            if not is_content_read:
+                temp_container.append(p.text.strip())
+                if p.text.split()[-1] == pdf_content_end:
+                    parts["content"] = " ".join(temp_container)
+                    temp_container.clear()
+                    is_content_read = True
+                    continue  # переход на следующий параграф
+
+        return parts
 
 
 if __name__ == '__main__':
     doc_part = DocPartition("../doc.docx")
-    title_page = doc_part.get_title()
-    content_page = doc_part.get_content()
-    print(title_page)
-    print(content_page)
+    parts = doc_part.make_partition()
+    print(parts)
+    for key, value in parts.items():
+        print(key, value)
     # print(llama.title(input()))
