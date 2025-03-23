@@ -15,17 +15,17 @@ def check_title(text):
             'content': text,
         }
     ])
-    return response['message']['content']
+    return response['message']['content'].lower().strip()
 
 def check_main_part(text):
     response: ChatResponse = chat(model='qwen2.5', messages=[
       {
         'role': 'system',
-        'content': 'Ты персональный помощник, определяющий тип текста. Похож ли следующий текст на пункт основной части реферата? Обычно он содержит номер пункта и заглавие пунктаю. Отвечай только да или нет.',
+        'content': 'Ты персональный помощник, определяющий тип текста. Похож ли следующий текст на пункт основной части реферата? Отвечай только да или нет.',
       },
         {
             'role': 'user',
             'content': text,
         }
     ])
-    return response['message']['content']
+    return response['message']['content'].lower().strip()

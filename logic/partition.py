@@ -1,6 +1,3 @@
-import json
-from weakref import finalize
-
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import docx2pdf
@@ -24,9 +21,12 @@ class DocPartition:
             self.doc = Document(file_path)
             docx2pdf.convert(file_path)
             self.pdf_path = file_path[:-5] + '.pdf'
+
         elif re.fullmatch(r'.+\.pdf$', file_path):
             self.pdf_path = file_path
             self.doc = None
+
+        self.doc_reader = iter(self.doc.paragraphs)
 
     # FIXME: эта залупа работает через раз
     # def __del__(self):
@@ -42,59 +42,122 @@ class DocPartition:
             pdf_content_end = reader.pages[1].extract_text().split()[-1]
         return [pdf_title_end, pdf_content_end]
 
+    def is_header(self, paragraph):
+        if paragraph.alignment == WD_ALIGN_PARAGRAPH.CENTER or any(
+            [word in paragraph.text.lower().strip() for word in self.keywords]):
+            return True
+        else:
+            return False
+
     def make_partition(self):
-        parts = {}
-        unnamed_parts_counter = 0
-        unnamed_part_started = False
-        temp_container = []
-        is_title_read = False
-        is_content_read = False
+        parts = {
+            "title": None,
+            "content": None,
+            "intro": None,
+            "main": None,
+            "conclusion": None,
+            "sources": None,
+            "appendices": None
+        }
+
         pdf_title_end, pdf_content_end = self.read_pdf()
-
-        for p in self.doc.paragraphs:
-            if p.text.strip() == "":
-                continue
-
-            is_header = p.alignment == WD_ALIGN_PARAGRAPH.CENTER or any([word in p.text.lower().strip() for word in self.keywords])
-            if is_header and all([is_title_read, is_content_read]):
-                print(p.text)
-                if unnamed_part_started:
-                    print(temp_container, len(temp_container))
-                    if len(temp_container) > 1:
-                        parts["part" if unnamed_parts_counter == 0 else "part" + str(unnamed_parts_counter)] = " ".join(temp_container)
-                        unnamed_parts_counter += 1
-                        temp_container.clear()
-                    unnamed_part_started = False
-
-                if not unnamed_part_started:
-                    unnamed_part_started = True
-
-            if unnamed_part_started:
-                temp_container.append(p.text.strip())
-
-
-            if not is_title_read:
-                temp_container.append(p.text.strip())
-                if p.text.split()[-1] == pdf_title_end.strip():
-                    parts["title"] = " ".join(temp_container)
-                    temp_container.clear()
-                    is_title_read = True
-                    continue # переход на следующий параграф
-
-            if not is_content_read:
-                temp_container.append(p.text.strip())
-                if p.text.split()[-1] == pdf_content_end:
-                    parts["content"] = " ".join(temp_container)
-                    temp_container.clear()
-                    is_content_read = True
-                    continue  # переход на следующий параграф
+        parts["title"] = self.get_title(pdf_title_end)
+        parts["content"] = self.get_content(pdf_content_end)
+        parts["intro"], first_part_title = self.get_intro()
+        parts["main"] = self.get_main()
+        parts["main"].insert(0, first_part_title)
+        parts["conclusion"] = self.get_conclusion()
+        parts["sources"] = self.get_sources()
 
         return parts
 
 
+    def get_title(self, pdf_end):
+        title = []
+        while True:
+            p = next(self.doc_reader)
+            if p.text.strip() == "":
+                continue
+            title.append(p.text.strip())
+            if p.text.split()[-1] == pdf_end.strip():
+                return title
+
+    def get_content(self, pdf_end):
+        content = []
+        while True:
+            p = next(self.doc_reader)
+            if p.text.strip() == "" or p.text.strip().lower() == "содержание":
+                continue
+
+            content.append(p.text.strip())
+            if p.text.split()[-1] == pdf_end.strip():
+                return content
+
+    def get_intro(self):
+        intro = []
+        while True:
+            p = next(self.doc_reader)
+            if p.text.strip() == "":
+                continue
+
+            if self.is_header(p):
+                if p.text.strip().lower() == "введение": continue
+                return [intro, p.text.strip()]
+            else:
+                intro.append(p.text.strip())
+
+    def get_main(self):
+        main = []
+        temp_container = []
+        curr_part = None
+        while True:
+            p = next(self.doc_reader)
+            if p.text.strip() == "":
+                continue
+
+            elif self.is_header(p):
+                if p.text.strip().lower() == "заключение":
+                    main.append(temp_container)
+                    return main
+                elif llama.check_main_part(p.text.strip()) == "да":
+                    main.append(temp_container)
+                    curr_part = p.text.split()[0]
+                    temp_container.clear()
+                    temp_container.append(p.text.strip())
+                continue
+            else:
+                temp_container.append(p.text.strip())
+
+    def get_conclusion(self):
+        conclusion = []
+        while True:
+            p = next(self.doc_reader)
+            if p.text.strip() == "":
+                continue
+
+            elif self.is_header(p):
+                return conclusion
+
+            else:
+                conclusion.append(p.text.strip())
+
+    def get_sources(self):
+        sources = []
+        while True:
+            try:
+                p = next(self.doc_reader)
+                if p.text.strip() == "":
+                    continue
+                else:
+                    sources.append(p.text.strip())
+            except StopIteration:
+                return sources
+
+    # TODO: сделать функцию get_appendices(возможно различное оформление)
+
 if __name__ == '__main__':
-    doc_part = DocPartition("../doc.docx")
+    doc_part = DocPartition("../doc1.docx")
     parts = doc_part.make_partition()
     for key, value in parts.items():
         print(key, value)
-    # print(llama.title(input()))
+
