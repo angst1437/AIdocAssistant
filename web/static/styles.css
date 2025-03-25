@@ -1,0 +1,30 @@
+* {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14pt
+}
+
+
+
+
+#title-form-header {
+    text-align: center;
+}
+
+.title-form {
+    padding: 20px 10px;
+    display: grid;
+    place-items: center;
+    margin: 0 30px 30px 30px;
+}
+
+#inputs {
+    display: block;
+}
+
+h3 {
+    margin: 0 0 5px;
+}
+
+input {
+    font-size: 14pt;
+}

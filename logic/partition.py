@@ -3,13 +3,13 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 import docx2pdf
 import PyPDF2
 import re
-import llama
+import logic.llama as llama
 import os
 import json
 
 class DocPartition:
 
-    with open("../gost.json", "r", encoding="UTF-8") as f:
+    with open(r"../gost.json", "r", encoding="UTF-8") as f:
         keywords = json.load(f)["keywords"]
 
     def __init__(self, file_path):
@@ -152,6 +152,7 @@ class DocPartition:
                     sources.append(p.text.strip())
             except StopIteration:
                 return sources
+
 
     # TODO: сделать функцию get_appendices(возможно различное оформление)
 

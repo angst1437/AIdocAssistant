@@ -6,11 +6,15 @@ authors = [
     {name = "Alexander Kleptsov",email = "angst1437@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.10,<3.13"
 dependencies = [
     "httpx (>=0.28.1,<0.29.0)",
     "docx2pdf (>=0.1.8,<0.2.0)",
-    "pypdf2 (>=3.0.1,<4.0.0)"
+    "pypdf2 (>=3.0.1,<4.0.0)",
+    "docling (>=2.28.0,<3.0.0)",
+    "spacy (>=3.8.4,<4.0.0)",
+    "flask (>=3.1.0,<4.0.0)",
+    "aiogram (>=3.19.0,<4.0.0)"
 ]
 
 [tool.poetry]

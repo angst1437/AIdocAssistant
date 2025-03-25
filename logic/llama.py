@@ -2,6 +2,7 @@ import ollama
 
 from ollama import chat
 from ollama import ChatResponse
+import logic.LlamaConfig as LlamaConfig
 
 
 def check_title(text):
@@ -29,3 +30,16 @@ def check_main_part(text):
         }
     ])
     return response['message']['content'].lower().strip()
+
+def title_sort(text):
+    response: ChatResponse = chat(model='qwen2.5', messages=[
+        {
+            'role': 'system',
+            'content': LlamaConfig.TITLE_SORT_PROMPT
+        },
+        {
+            'role': 'user',
+            'content': text,
+        }
+    ], options={"temperature": 0.1})
+    return response['message']['content']
