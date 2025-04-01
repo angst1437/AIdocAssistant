@@ -9,7 +9,7 @@ import json
 
 class DocPartition:
 
-    with open(r"../gost.json", "r", encoding="UTF-8") as f:
+    with open(r"./gost.json", "r", encoding="UTF-8") as f:
         keywords = json.load(f)["keywords"]
 
     def __init__(self, file_path):
