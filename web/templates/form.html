@@ -14,102 +14,106 @@
     <script src="https://cdn.jsdelivr.net/npm/docx-preview@latest/dist/docx-preview.js"></script>
 </head>
 <body>
-    <div id="inputs" style="float: left; width: 40%; padding: 20px;">
-        <form id="title-form" class="needs-validation h-100" novalidate>
-            <h2 class="mb-4 text-primary">Оформление титульного листа</h2>
-            
-            <!-- Университет -->
-            <div class="mb-4">
-                <label class="form-label fw-bold">
-                    Учебное заведение и подразделения
-                    <span class="text-muted d-block small">(каждый элемент с новой строки)</span>
-                </label>
-                <textarea name="university-info" 
-                        class="form-control" 
-                        rows="3"
-                        placeholder="Челябинский государственный университет&#10;Институт информационных технологий..."
-                        required></textarea>
-            </div>
-    
-            <!-- Основные поля в 2 колонки -->
-            <div class="row g-3 mb-4">
-                <div class="col-6">
-                    <label class="form-label fw-semibold">Тип работы</label>
-                    <input name="work-type" 
-                        type="text" 
-                        class="form-control" 
-                        placeholder="Реферат" 
-                        required>
-                </div>
+    <div class="container-fluid vh-100 d-flex p-0">
+        <div id="inputs" class="col-4 h-100 border-end p-3 overflow-auto">
+            <form id="title-form" class="needs-validation h-100" novalidate>
+                <h2 class="mb-4 text-primary">Оформление титульного листа</h2>
                 
-                <div class="col-6">
-                    <label class="form-label fw-semibold">Дисциплина</label>
-                    <input name="work-subject" 
+                <!-- Университет -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">
+                        Учебное заведение и подразделения
+                        <span class="text-muted d-block small">(каждый элемент с новой строки)</span>
+                    </label>
+                    <textarea name="university-info" 
+                            class="form-control" 
+                            rows="3"
+                            placeholder="Челябинский государственный университет&#10;Институт информационных технологий..."
+                            required></textarea>
+                </div>
+        
+                <!-- Основные поля в 2 колонки -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Тип работы</label>
+                        <input name="work-type" 
+                            type="text" 
+                            class="form-control" 
+                            placeholder="Реферат" 
+                            required>
+                    </div>
+                    
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Дисциплина</label>
+                        <input name="work-subject" 
+                            type="text" 
+                            class="form-control" 
+                            placeholder="Экономическая теория" 
+                            required>
+                    </div>
+                </div>
+        
+                <!-- Тема -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Тема работы</label>
+                    <input name="work-theme" 
                         type="text" 
                         class="form-control" 
-                        placeholder="Экономическая теория" 
+                        placeholder="Влияние плановой экономики на экономику СССР" 
                         required>
                 </div>
-            </div>
-    
-            <!-- Тема -->
-            <div class="mb-4">
-                <label class="form-label fw-semibold">Тема работы</label>
-                <input name="work-theme" 
-                    type="text" 
-                    class="form-control" 
-                    placeholder="Влияние плановой экономики на экономику СССР" 
-                    required>
-            </div>
-    
-            <!-- Личные данные -->
-            <div class="row g-3 mb-4">
-                <div class="col-6">
-                    <label class="form-label fw-semibold">Ваше ФИО</label>
-                    <input name="fullname" 
+        
+                <!-- Личные данные -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Ваше ФИО</label>
+                        <input name="fullname" 
+                            type="text" 
+                            class="form-control" 
+                            placeholder="Иванов А.А." 
+                            required>
+                    </div>
+                    
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Группа</label>
+                        <input name="group" 
+                            type="text" 
+                            class="form-control" 
+                            placeholder="ПИ-201" 
+                            required>
+                    </div>
+                </div>
+        
+                <!-- Проверяющий -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Руководитель</label>
+                    <input name="educator" 
                         type="text" 
                         class="form-control" 
-                        placeholder="Иванов А.А." 
+                        placeholder="Кандидат наук, доцент Петриченко Ю. В." 
                         required>
                 </div>
-                
-                <div class="col-6">
-                    <label class="form-label fw-semibold">Группа</label>
-                    <input name="group" 
+        
+                <!-- Город -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Город</label>
+                    <input name="city" 
                         type="text" 
                         class="form-control" 
-                        placeholder="ПИ-201" 
+                        placeholder="Челябинск" 
                         required>
                 </div>
-            </div>
-    
-            <!-- Проверяющий -->
-            <div class="mb-4">
-                <label class="form-label fw-semibold">Руководитель</label>
-                <input name="educator" 
-                    type="text" 
-                    class="form-control" 
-                    placeholder="Кандидат наук, доцент Петриченко Ю. В." 
-                    required>
-            </div>
-    
-            <!-- Город -->
-            <div class="mb-4">
-                <label class="form-label fw-semibold">Город</label>
-                <input name="city" 
-                    type="text" 
-                    class="form-control" 
-                    placeholder="Челябинск" 
-                    required>
-            </div>
-    
-            <!-- Кнопка -->
-            <button type="submit" class="btn btn-primary w-100 py-2 mt-3">
-                <i class="bi bi-file-text me-2"></i>Сформировать
-            </button>
-        </form>
+        
+                <!-- Кнопка -->
+                <button type="submit" class="btn btn-primary w-100 py-2 mt-3">
+                    <i class="bi bi-file-text me-2"></i>Сформировать
+                </button>
+            </form>
+        </div>
+        <div id="preview" class="col-8 h-100 p-3 overflow-auto">
+
+        </div>
     </div>
-    <div id="preview" style="float: right; width: 60%;"></div>
 
     <script>
         const titleForm = document.getElementById('title-form');
