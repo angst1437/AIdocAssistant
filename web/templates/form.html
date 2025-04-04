@@ -110,11 +110,12 @@
                 <button type="submit" form="title-form" class="btn btn-primary w-100 py-2">
                     <i class="bi bi-file-text me-2"></i>Сформировать
                 </button>
-                <button id="download-btn" 
+                <button id="next-step-btn" 
                         class="btn btn-secondary w-100 py-2 mt-2" 
                         disabled
+                        onclick="handleNextStep()"
                         title="Доступно после генерации документа">
-                    <i class="bi bi-download me-2"></i>Скачать
+                    <i class="bi bi-arrow-right me-2"></i>Следующий этап
                 </button>
             </div>
         </div>
@@ -124,22 +125,28 @@
             </div>
         </div>
     </div>
-
+    
     <script>
         let currentBlobUrl = null;
 
         const titleForm = document.getElementById('title-form');
         const preview = document.getElementById('preview');
-        const downloadBtn = document.getElementById('download-btn');
+        const nextStepBtn = document.getElementById('next-step-btn');
 
-        // Обработчик скачивания
-        const handleDownload = () => {
-            const link = document.createElement('a');
-            link.href = currentBlobUrl;
-            link.download = downloadBtn.dataset.filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        const handleNextStep = () => {
+            if (!currentBlobUrl) return;
+            
+            // Сохраняем документ в sessionStorage
+            const reader = new FileReader();
+            fetch(currentBlobUrl)
+                .then(res => res.blob())
+                .then(blob => {
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = () => {
+                        sessionStorage.setItem('generatedDoc', reader.result);
+                        window.location.href = '/editor'; // Ваш URL следующего этапа
+                    }
+                });
         };
 
         titleForm.onsubmit = async (e) => {
@@ -165,11 +172,8 @@
                 
                 // Обновляем кнопку
                 currentBlobUrl = URL.createObjectURL(blob);
-                const fileName = `${data['work-theme'].replace(/[^a-zа-яё\d]/gi, '_')}.docx`;
-                downloadBtn.dataset.filename = fileName;
-                downloadBtn.onclick = handleDownload;
-                downloadBtn.disabled = false;
-                downloadBtn.classList.replace('btn-secondary', 'btn-success');
+                nextStepBtn.disabled = false;
+                nextStepBtn.classList.replace('btn-secondary', 'btn-success');
 
                 // Рендер документа
                 docx.renderAsync(blob, preview, null, {
@@ -178,8 +182,8 @@
             } catch (error) {
                 console.error('Ошибка:', error);
                 preview.innerHTML = `<p style="color: red">${error.message}</p>`;
-                downloadBtn.disabled = true;
-                downloadBtn.classList.replace('btn-success', 'btn-secondary');
+                nextStepBtn.disabled = true;
+                nextStepBtn.classList.replace('btn-success', 'btn-secondary');
             }
         };
     </script>

@@ -54,6 +54,10 @@ def generate_doc():
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
 
+@app.route('/editor')
+def editor():
+    return render_template('editor.html')
+
 @app.route('/process_docx', methods=['POST'])
 def process_docx():
     if 'file' not in request.files:
