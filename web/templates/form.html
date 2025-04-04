@@ -15,8 +15,8 @@
 </head>
 <body>
     <div class="container-fluid vh-100 d-flex p-0">
-        <div id="inputs" class="col-4 h-100 border-end p-3 overflow-auto">
-            <form id="title-form" class="needs-validation h-100" novalidate>
+        <div id="inputs" class="col-4 h-100 border-end d-flex flex-column">
+            <form id="title-form" class="needs-validation overflow-auto p-3" needs-validation>
                 <h2 class="mb-4 text-primary">Оформление титульного листа</h2>
                 
                 <!-- Университет -->
@@ -103,31 +103,53 @@
                         placeholder="Челябинск" 
                         required>
                 </div>
-        
-                <!-- Кнопка -->
-                <button type="submit" class="btn btn-primary w-100 py-2 mt-3">
+            </form>
+            
+            <!-- Контейнер для кнопок -->
+            <div class="p-3 pt-3 border-top" style="position: sticky; bottom: 0; background: white; z-index: 1000;">
+                <button type="submit" form="title-form" class="btn btn-primary w-100 py-2">
                     <i class="bi bi-file-text me-2"></i>Сформировать
                 </button>
-            </form>
+                <button id="download-btn" 
+                        class="btn btn-secondary w-100 py-2 mt-2" 
+                        disabled
+                        title="Доступно после генерации документа">
+                    <i class="bi bi-download me-2"></i>Скачать
+                </button>
+            </div>
         </div>
-        <div id="preview" class="col-8 h-100 p-3 overflow-auto">
-
+        <div id="preview" class="overflow-auto flex-grow-1 h-100">
+            <div id="preview-notice" class="text-muted text-center h-100 d-flex align-items-center justify-content-center">
+                Заполните форму слева, чтобы увидеть документ
+            </div>
         </div>
     </div>
 
     <script>
+        let currentBlobUrl = null;
+
         const titleForm = document.getElementById('title-form');
         const preview = document.getElementById('preview');
+        const downloadBtn = document.getElementById('download-btn');
+
+        // Обработчик скачивания
+        const handleDownload = () => {
+            const link = document.createElement('a');
+            link.href = currentBlobUrl;
+            link.download = downloadBtn.dataset.filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
 
         titleForm.onsubmit = async (e) => {
             e.preventDefault();
             
-            // Собираем данные формы
             const formData = new FormData(titleForm);
             const data = Object.fromEntries(formData.entries());
             
-            // Отправляем на сервер Flask
             try {
+                
                 const response = await fetch('/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -136,17 +158,28 @@
 
                 if (!response.ok) throw new Error('Ошибка генерации документа');
                 
-                // Получаем DOCX как Blob
                 const blob = await response.blob();
                 
-                // Рендерим через docx-preview.js
+                // Очистка предыдущего blob
+                if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+                
+                // Обновляем кнопку
+                currentBlobUrl = URL.createObjectURL(blob);
+                const fileName = `${data['work-theme'].replace(/[^a-zа-яё\d]/gi, '_')}.docx`;
+                downloadBtn.dataset.filename = fileName;
+                downloadBtn.onclick = handleDownload;
+                downloadBtn.disabled = false;
+                downloadBtn.classList.replace('btn-secondary', 'btn-success');
+
+                // Рендер документа
                 docx.renderAsync(blob, preview, null, {
                     className: "docx",
-                    inWrapper: true,
                 });
             } catch (error) {
                 console.error('Ошибка:', error);
                 preview.innerHTML = `<p style="color: red">${error.message}</p>`;
+                downloadBtn.disabled = true;
+                downloadBtn.classList.replace('btn-success', 'btn-secondary');
             }
         };
     </script>
