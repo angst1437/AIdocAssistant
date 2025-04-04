@@ -29,68 +29,26 @@ input {
 
 /* Стили для страницы выбора */
 
-.choice-container {
-    display: flex;
-    flex-direction: center;
-    justify-content: center; /* Горизонтальное центрирование */
-    height: 100vh;
-    gap: 20px;
-    padding: 20px;
+.transition-all {
+    transition: all 0.3s ease;
 }
 
-.choice-box {
-    flex: 1;
-    border: 2px solid #ccc; 
-    padding: 30px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    border-radius: 8px;
-    background: #f9f9f9;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Вертикальное центрирование содержимого */
-    align-items: center; /* Горизонтальное центрирование содержимого */
-    min-height: 300px; /* Минимальная высота для лучшего вида */
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    border-color: var(--bs-success) !important;
 }
 
-/* Остальные стили остаются такими же */
-.choice-box:hover {
-    border-color: #4CAF50;
-    transform: scale(1.03);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+/* Кастомные стили только для области дропа */
+#docx-upload:focus-within + label {
+    border-color: var(--bs-success) !important;
+    background-color: rgba(40, 167, 69, 0.1);
 }
 
-.drop-area {
-    display: block;
-    padding: 30px;
-    margin: 15px 0;
-    border: 2px solid #888;
-    border-radius: 5px;
-    background: #fff;
+.bg-success-bg {
+    background-color: rgba(25, 135, 84, 0.1) !important;
 }
 
-.drop-area.highlight {
-    border-color: #4CAF50;
-    background-color: #f0fff0;
-}
-
-.file-name {
-    margin-top: 10px;
-    font-size: 14px;
-    color: #333;
-    word-break: break-word;
-    max-width: 100%;
-}
-
-/* Адаптивность для мобильных устройств */
-@media (max-width: 768px) {
-    .choice-container {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .choice-box {
-        width: 80%;
-    }
+.transition-all {
+    transition: all 0.2s ease-in-out;
 }

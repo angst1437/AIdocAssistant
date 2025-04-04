@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify
 from docx import Document
 from io import BytesIO
 from logic import builder, partition, datatypes
@@ -20,18 +20,21 @@ def form():
 
 @app.route('/generate', methods=['POST'])
 def generate_doc():
+
+    # Получаем json после отправки с формы
+    data = request.get_json()
+
+    # Заполняем шаблон титульного листа и создаём документ
     title = datatypes.TitleData(
-        university_info=list(filter(lambda elem: elem.strip() != "",request.form.get('university-info').split('\n'))),
-        work_type=request.form.get('work-type'),
-        subject=request.form.get('work-subject'),
-        theme=request.form.get('work-theme'),
-        author=request.form.get('fullname'),
-        group=request.form.get('group'),
-        educator=request.form.get('educator'),
-        city=request.form.get('city'),
+        university_info=list(filter(lambda elem: elem.strip() != "",data.get("university-info").split('\n'))),
+        work_type=data.get('work-type'),
+        subject=data.get('work-subject'),
+        theme=data.get('work-theme'),
+        author=data.get('fullname'),
+        group=data.get('group'),
+        educator=data.get('educator'),
+        city=data.get('city'),
     )
-
-
     doc_builder = builder.DocBuilder()
 
     # Добавляем содержимое
@@ -46,7 +49,7 @@ def generate_doc():
     # Отправляем файл пользователю
     return send_file(
         file_stream,
-        as_attachment=True,
+        as_attachment=False,
         download_name='generated_document.docx',
         mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     )
@@ -66,7 +69,7 @@ def process_docx():
     try:
         # Здесь должна быть логика обработки файла
         
-        return "File processed successfully", 200
+        return f"File processed successfully {file.filename}", 200
     except Exception as e:
         return f"Error processing file: {str(e)}", 500
 
