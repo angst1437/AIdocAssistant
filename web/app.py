@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, send_file, jsonify
 from docx import Document
 from io import BytesIO
-from logic import builder, partition, datatypes
+from logic import builder, datatypes
 from werkzeug.utils import secure_filename
 
 
