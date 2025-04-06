@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+<script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+{% block title %}{{ document.title }} | НИР Ассистент{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ckeditor5-custom-build@1.0.0/build/ckeditor.css">
+<style>
+    .ck-editor__editable {
+        min-height: 300px;
+    }
+    .recommendation {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .recommendation:hover {
+        background-color: rgba(79, 70, 229, 0.1);
+    }
+    .recommendation.active {
+        background-color: rgba(79, 70, 229, 0.2);
+    }
+    .recommendation-type {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .recommendation-type-style {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: rgb(245, 158, 11);
+    }
+    .recommendation-type-grammar {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: rgb(239, 68, 68);
+    }
+    .recommendation-type-gost {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: rgb(16, 185, 129);
+    }
+    .recommendation-type-terminology {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: rgb(59, 130, 246);
+    }
+    .recommendation-type-logic {
+        background-color: rgba(139, 92, 246, 0.1);
+        color: rgb(139, 92, 246);
+    }
+    .toast {
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        z-index: 50;
+        transition: transform 0.3s, opacity 0.3s;
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row h-full">
+    <!-- Editor Section -->
+    <div class="w-full md:w-2/3 pr-0 md:pr-4">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
+            <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+                <div class="flex-1">
+                    <input type="text" id="document-title" value="{{ document.title }}" class="text-xl font-bold text-gray-900 w-full border-0 focus:ring-0 focus:outline-none" placeholder="Название документа">
+                </div>
+                <div class="flex space-x-2">
+                        <div x-show="open"
+                             @click.away="open = false"
+                             class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10"  {# Добавлен z-index на всякий случай #}
+                             role="menu"
+                             aria-orientation="vertical"
+                             aria-labelledby="export-menu-button"
+                             tabindex="-1"
+                             style="display: none;"> {# Добавлен style для скрытия по умолчанию, если Alpine не сработает сразу #}
+                            {# *** ИСПРАВЛЕНИЕ ЗДЕСЬ *** #}
+                            <a href="{{ url_for('documents.export_document', document_id=document.id, format='docx') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Экспорт в DOCX</a>
+                            <a href="{{ url_for('documents.export_document', document_id=document.id, format='pdf') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Экспорт в PDF</a>
+                            {# *** КОНЕЦ ИСПРАВЛЕНИЯ *** #}
+                        </div>
+                    </div>
+                    <button id="save-document" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Сохранить
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <div id="editor-container">
+                    {% for block in blocks %}
+                    <div class="editor-block mb-4" data-block-id="{{ block.id }}">
+                        <div class="editor-toolbar flex justify-between items-center mb-2">
+                            <select class="block-type-select border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option value="paragraph" {% if block.block_type == 'paragraph' %}selected{% endif %}>Абзац</option>
+                                <option value="heading" {% if block.block_type == 'heading' %}selected{% endif %}>Заголовок</option>
+                                <option value="list" {% if block.block_type == 'list' %}selected{% endif %}>Список</option>
+                            </select>
+                            <div class="flex space-x-2">
+                                <button class="analyze-block-btn px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Проверить
+                                </button>
+                                <button class="delete-block-btn px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Удалить
+                                </button>
+                            </div>
+                        </div>
+                        <div class="editor" data-block-id="{{ block.id }}">{{ block.content|safe }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-4">
+                    <button id="add-block-btn" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="mr-2 -ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                        </svg>
+                        Добавить блок
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recommendations Panel -->
+    <div class="w-full md:w-1/3 mt-4 md:mt-0">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Рекомендации
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Рекомендации по улучшению текста.
+                </p>
+                <div class="mt-3">
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="w-full inline-flex justify-between items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <span>Выбрать ИИ-провайдера</span>
+                            <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div x-show="open" 
+                             @click.away="open = false"
+                             class="origin-top-right absolute right-0 mt-2 w-full rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" 
+                             role="menu" 
+                             aria-orientation="vertical" 
+                             aria-labelledby="ai-provider-menu-button" 
+                             tabindex="-1">
+                            <a href="#" data-provider="yandex" class="ai-provider-option block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">YandexGPT</a>
+                            <a href="#" data-provider="gigachat" class="ai-provider-option block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">GigaChat</a>
+                            <a href="#" data-provider="gemini" class="ai-provider-option block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Gemini</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-200">
+                <div id="recommendations-container" class="px-4 py-5 sm:p-6 space-y-4 max-h-screen overflow-y-auto">
+                    <div class="text-center text-gray-500 py-8">
+                        Выберите блок текста и нажмите "Проверить" для получения рекомендаций.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast">
+    <div class="flex items-center">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="ml-3">
+            <p id="toast-message" class="text-sm font-medium text-gray-900"></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/ckeditor5-custom-build@1.0.0/build/ckeditor.js"></script>
+<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+{% endblock %}
+

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+<script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+{% block title %}Создать документ | НИР Ассистент{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Создать новый документ
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Введите название для вашего нового документа.
+        </p>
+    </div>
+    <div class="border-t border-gray-200">
+        <form method="POST" action="{{ url_for('documents.create') }}" class="px-4 py-5 sm:p-6">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700">Название документа</label>
+                <input type="text" name="title" id="title" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" placeholder="Введите название документа" required>
+            </div>
+            <div class="mt-6">
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Создать
+                </button>
+                <a href="{{ url_for('documents.index') }}" class="ml-3 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,15 @@
+﻿flask==2.3.3
+flask-sqlalchemy==3.1.1
+flask-login==0.6.2
+flask-migrate==4.0.5
+flask-wtf==1.2.1
+python-dotenv==1.0.0
+werkzeug==2.3.7
+python-docx==1.0.1
+reportlab==4.0.7
+pillow==10.1.0
+requests==2.31.0
+email-validator==2.1.0.post1
+WTForms~=3.2.1
+alembic~=1.15.2
+SQLAlchemy~=2.0.40

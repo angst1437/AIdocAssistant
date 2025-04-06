@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Управление пользователями | НИР Ассистент{% endblock %}
+
+{% block content %}
+<div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+    <div>
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Управление пользователями
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Список всех пользователей системы.
+        </p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Назад к панели
+        </a>
+    </div>
+</div>
+
+<div class="flex flex-col mt-6">
+    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Имя пользователя
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Email
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Роль
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Статус
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Дата регистрации
+                            </th>
+                            <th scope="col" class="relative px-6 py-3">
+                                <span class="sr-only">Действия</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for user in users %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ user.username }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">
+                                    {{ user.email }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">
+                                    {% if user.is_admin() %}
+                                    Администратор
+                                    {% else %}
+                                    Пользователь
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if user.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                    {% if user.is_active %}
+                                    Активен
+                                    {% else %}
+                                    Заблокирован
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ user.created_at.strftime('%d.%m.%Y %H:%M') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                {% if user.id != current_user.id %}
+                                <button 
+                                    data-user-id="{{ user.id }}" 
+                                    class="text-indigo-600 hover:text-indigo-900 toggle-user-active-btn">
+                                    {% if user.is_active %}
+                                    Заблокировать
+                                    {% else %}
+                                    Разблокировать
+                                    {% endif %}
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButtons = document.querySelectorAll('.toggle-user-active-btn');
+        
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const userId = this.getAttribute('data-user-id');
+                
+                fetch(`/admin/users/${userId}/toggle-active`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Reload the page to reflect changes
+                        window.location.reload();
+                    } else {
+                        alert(data.error || 'Произошла ошибка');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при выполнении запроса');
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}
+
