@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Выбор структуры | НИР Ассистент{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+    <h1 class="text-2xl font-bold text-center mb-8">Выберите структуру документа</h1>
+    
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">{{ document.title }}</h3>
+            <p class="mt-2 text-sm text-gray-500">Выберите шаблон структуры для вашего документа</p>
+            
+            <div class="mt-6 space-y-4">
+                {% for template in templates %}
+                <div class="border border-gray-200 rounded-md p-4 hover:border-indigo-500 transition-colors">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="text-base font-medium text-gray-900">{{ template.name }}</h4>
+                            <p class="text-sm text-gray-500">{{ template.description }}</p>
+                        </div>
+                        <form method="POST" action="{{ url_for('documents.apply_template', document_id=document.id, template_id=template.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Выбрать
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center">
+        <a href="{{ url_for('documents.index') }}" class="text-indigo-600 hover:text-indigo-900">
+            Вернуться к списку документов
+        </a>
+    </div>
+</div>
+{% endblock %}
+

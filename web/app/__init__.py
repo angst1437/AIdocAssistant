@@ -28,7 +28,7 @@ def create_app(config_class=None):
 
     # Load configuration
     if config_class is None:
-        app.config.from_object('web.config.Config')
+        app.config.from_object('config.Config')
     else:
         app.config.from_object(config_class)
 
@@ -45,11 +45,11 @@ def create_app(config_class=None):
     os.makedirs(os.path.join(app.instance_path, 'uploads', 'error_reports'), exist_ok=True)
 
     # Register blueprints
-    from web.app.routes.auth import auth_bp
-    from web.app.routes.documents import documents_bp
-    from web.app.routes.ai import ai_bp
-    from web.app.routes.feedback import feedback_bp
-    from web.app.routes.admin import admin_bp
+    from .routes.auth import auth_bp
+    from .routes.documents import documents_bp
+    from .routes.ai import ai_bp
+    from .routes.feedback import feedback_bp
+    from .routes.admin import admin_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(documents_bp)
@@ -74,11 +74,11 @@ def create_app(config_class=None):
     # Shell context
     @app.shell_context_processor
     def make_shell_context():
-        from web.app.models import User, Document, DocumentBlock, Recommendation, ErrorReport, LogEntry
+        from web.app.models import User, DocumentApp, DocumentBlock, Recommendation, ErrorReport, LogEntry
         return {
             'db': db, 
             'User': User, 
-            'Document': Document, 
+            'Document': DocumentApp,
             'DocumentBlock': DocumentBlock,
             'Recommendation': Recommendation,
             'ErrorReport': ErrorReport,

@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, current_user, login_required
-from werkzeug.urls import url_parse
-from web.app import db
-from web.app.models import User, LogEntry
-from web.app.forms.auth import LoginForm, RegistrationForm
-from web.app.utils.decorators import log_activity
+from urllib.parse import urlsplit
+from .. import db
+from ..models import User, LogEntry
+from ..forms.auth import LoginForm, RegistrationForm
+from ..utils.decorators import log_activity
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -39,7 +39,7 @@ def login():
         db.session.commit()
         
         next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
+        if not next_page or urlsplit(next_page).netloc != '':
             next_page = url_for('documents.index')
         
         return redirect(next_page)

@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, abort
 from flask_login import login_required, current_user
-from web.app import db
-from web.app.models import User, ErrorReport, LogEntry
-from web.app.utils.decorators import admin_required, log_activity
+from ..import db
+from ..models import User, ErrorReport, LogEntry
+from ..utils.decorators import admin_required, log_activity
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 

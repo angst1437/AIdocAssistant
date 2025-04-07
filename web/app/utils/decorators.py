@@ -1,8 +1,8 @@
 from functools import wraps
 from flask import abort, request, current_app
 from flask_login import current_user
-from web.app.models import LogEntry
-from web.app import db
+from ..models import LogEntry
+from .. import db
 
 def admin_required(f):
     @wraps(f)

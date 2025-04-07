@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}{{ section.name }} | {{ document.title }} | НИР Ассистент{% endblock %}
+
+{% block styles %}
+<style>
+    .section-nav {
+        background-color: #f3f4f6;
+        border-radius: 1rem;
+        padding: 1rem;
+    }
+    
+    .section-nav-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        background-color: #e5e7eb;
+        color: #4b5563;
+        font-weight: 600;
+        margin: 0.5rem 0;
+        position: relative;
+    }
+    
+    .section-nav-item.active {
+        background-color: #4b5563;
+        color: white;
+    }
+    
+    .section-nav-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        width: 2px;
+        height: 1rem;
+        background-color: #d1d5db;
+    }
+    
+    .section-nav-connector {
+        width: 2px;
+        height: 1rem;
+        background-color: #d1d5db;
+        margin: 0 auto;
+    }
+
+    .toast {
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        z-index: 50;
+        transition: transform 0.3s, opacity 0.3s;
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row h-full">
+    <!-- Навигация по секциям -->
+    <div class="w-full md:w-1/6 p-4">
+        <div class="section-nav">
+            {% for section_item in document.template.sections %}
+            <a href="{{ url_for('documents.edit_section', document_id=document.id, section_id=section_item.id) }}" class="block">
+                <div class="section-nav-item {% if section_item.id == section.id %}active{% endif %}" title="{{ section_item.name }}">
+                    {{ section_item.code }}
+                </div>
+                {% if not loop.last %}
+                <div class="section-nav-connector"></div>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Форма -->
+    <div class="w-full md:w-5/6 p-4">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
+            <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+                <h1 class="text-xl font-bold text-gray-900">{{ section.name }}</h1>
+                <div class="flex space-x-2">
+                    <button id="save-section" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Сохранить
+                    </button>
+                    <a href="{{ url_for('documents.edit_structured', document_id=document.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Вернуться к документу
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <form id="section-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <!-- Динамическая форма на основе схемы секции -->
+                    {% if section.form_schema %}
+                        {% for field in section.form_schema %}
+                            <div class="mb-4">
+                                <label for="{{ field.name }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+
+                                {% if field.type == 'text' %}
+                                    <input type="text" id="{{ field.name }}" name="{{ field.name }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                           value="{{ section_content.form_data.get(field.name, '') }}"
+                                           {% if field.required %}required{% endif %}>
+
+                                {% elif field.type == 'textarea' %}
+                                    <textarea id="{{ field.name }}" name="{{ field.name }}" rows="3" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                              {% if field.required %}required{% endif %}>{{ section_content.form_data.get(field.name, '') }}</textarea>
+
+                                {% elif field.type == 'select' %}
+                                    <select id="{{ field.name }}" name="{{ field.name }}" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                            {% if field.required %}required{% endif %}>
+                                        {% for option in field.options %}
+                                            <option value="{{ option.value }}" {% if section_content.form_data.get(field.name) == option.value %}selected{% endif %}>{{ option.label }}</option>
+                                        {% endfor %}
+                                    </select>
+
+                                {% elif field.type == 'date' %}
+                                    <input type="date" id="{{ field.name }}" name="{{ field.name }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                           value="{{ section_content.form_data.get(field.name, '') }}"
+                                           {% if field.required %}required{% endif %}>
+
+                                {% elif field.type == 'checkbox' %}
+                                    <div class="mt-1">
+                                        <input type="checkbox" id="{{ field.name }}" name="{{ field.name }}" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                               {% if section_content.form_data.get(field.name) %}checked{% endif %}>
+                                        <label for="{{ field.name }}" class="ml-2 text-sm text-gray-700">{{ field.checkbox_label }}</label>
+                                    </div>
+                                {% endif %}
+
+                                {% if field.help_text %}
+                                    <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Базовая форма, если схема не определена -->
+                        <div class="mb-4">
+                            <label for="content" class="block text-sm font-medium text-gray-700">Содержимое</label>
+                            <textarea id="content" name="content" rows="10" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">{{ section_content.content }}</textarea>
+                        </div>
+                    {% endif %}
+
+                    <div class="flex justify-end">
+                        <button type="button" id="save-section-btn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Сохранить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast">
+    <div class="flex items-center">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="ml-3">
+            <p id="toast-message" class="text-sm font-medium text-gray-900"></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Показ уведомления
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+
+            toastMessage.textContent = message;
+
+            if (type === 'error') {
+                toast.querySelector('svg').classList.remove('text-green-400');
+                toast.querySelector('svg').classList.add('text-red-400');
+            } else {
+                toast.querySelector('svg').classList.remove('text-red-400');
+                toast.querySelector('svg').classList.add('text-green-400');
+            }
+
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Получение CSRF-токена
+        function getCsrfToken() {
+            return document.querySelector('input[name="csrf_token"]').value;
+        }
+        
+        // Сохранение данных формы
+        function saveSection() {
+            const form = document.getElementById('section-form');
+            const formData = new FormData(form);
+            
+            fetch(`/{{ document.id }}/section/{{ section.id }}/update`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Секция успешно сохранена');
+                } else {
+                    showToast('Ошибка при сохранении секции', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving section:', error);
+                showToast('Ошибка при сохранении секции', 'error');
+            });
+        }
+        
+        // Обработчик кнопки сохранения
+        document.getElementById('save-section-btn').addEventListener('click', saveSection);
+        document.getElementById('save-section').addEventListener('click', saveSection);
+    });
+</script>
+{% endblock %}
+

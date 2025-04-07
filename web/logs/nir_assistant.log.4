@@ -1,49 +1,4 @@
-2025-04-06 20:59:33,284 ERROR: Exception on /register [POST] [in C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py:1414]
-Traceback (most recent call last):
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
-    self._dbapi_connection = engine.raw_connection()
-                             ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
-    return self.pool.connect()
-           ^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
-    return _ConnectionFairy._checkout(self)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1264, in _checkout
-    fairy = _ConnectionRecord.checkout(pool)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 713, in checkout
-    rec = pool._do_get()
-          ^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
-    with util.safe_reraise():
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
-    raise exc_value.with_traceback(exc_tb)
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
-    return self._create_connection()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
-    return _ConnectionRecord(self)
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 675, in __init__
-    self.__connect()
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 901, in __connect
-    with util.safe_reraise():
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
-    raise exc_value.with_traceback(exc_tb)
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 897, in __connect
-    self.dbapi_connection = connection = pool._invoke_creator(self)
-                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
-    return dialect.connect(*cargs, **cparams)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 625, in connect
-    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-sqlite3.OperationalError: unable to open database file
-
-The above exception was the direct cause of the following exception:
-
+2025-04-06 22:27:50,381 ERROR: Exception on /login [POST] [in C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py:1414]
 Traceback (most recent call last):
   File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
     response = self.full_dispatch_request()
@@ -57,94 +12,127 @@ Traceback (most recent call last):
   File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\app\routes\auth.py", line 62, in register
-    if form.validate_on_submit():
-       ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask_wtf\form.py", line 86, in validate_on_submit
-    return self.is_submitted() and self.validate(extra_validators=extra_validators)
-                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\wtforms\form.py", line 330, in validate
-    return super().validate(extra)
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\wtforms\form.py", line 147, in validate
-    if not field.validate(self, extra):
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\wtforms\fields\core.py", line 234, in validate
-    stop_validation = self._run_validation_chain(form, chain)
-                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\wtforms\fields\core.py", line 254, in _run_validation_chain
-    validator(form, self)
-  File "C:\pyProj\nir-assistant-ver2\app\forms\auth.py", line 22, in validate_username
-    user = User.query.filter_by(username=username.data).first()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2759, in first
-    return self.limit(1)._iter().first()  # type: ignore
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2858, in _iter
-    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
-                                                  ^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
-    return self._execute_internal(
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2241, in _execute_internal
-    conn = self._connection_for_bind(bind)
+  File "C:\pyProj\nir-assistant-ver2\app\routes\auth.py", line 31, in login
+    log_entry = LogEntry(
+                ^^^^^^^^
+NameError: name 'LogEntry' is not defined
+2025-04-06 22:30:06,652 ERROR: Exception on /login [POST] [in C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py:1414]
+Traceback (most recent call last):
+  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pyProj\nir-assistant-ver2\app\routes\auth.py", line 31, in login
+    log_entry = LogEntry(
+                ^^^^^^^^
+NameError: name 'LogEntry' is not defined
+2025-04-06 22:45:45,778 ERROR: Exception on /login [POST] [in C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py:1414]
+Traceback (most recent call last):
+  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pyProj\nir-assistant-ver2\app\routes\auth.py", line 31, in login
+    log_entry = LogEntry(
+                ^^^^^^^^
+NameError: name 'LogEntry' is not defined
+2025-04-06 22:48:17,929 ERROR: Exception on /login [POST] [in C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py:1414]
+Traceback (most recent call last):
+  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\pyProj\nir-assistant-ver2\app\routes\auth.py", line 31, in login
+    log_entry = LogEntry(
+                ^^^^^^^^
+NameError: name 'LogEntry' is not defined
+2025-04-06 23:20:08,575 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:72]
+2025-04-06 23:28:41,462 INFO: NIR Assistant startup [in c:\pyProj\nir-assistant-ver2\app\__init__.py:72]
+2025-04-06 23:28:42,193 INFO: NIR Assistant startup [in c:\pyProj\nir-assistant-ver2\app\__init__.py:72]
+2025-04-06 23:29:09,048 INFO: NIR Assistant startup [in c:\pyProj\nir-assistant-ver2\app\__init__.py:72]
+2025-04-06 23:29:09,808 INFO: NIR Assistant startup [in c:\pyProj\nir-assistant-ver2\app\__init__.py:72]
+2025-04-06 23:48:14,158 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:72]
+2025-04-06 23:53:40,210 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:72]
+2025-04-07 00:15:44,571 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:72]
+2025-04-07 00:24:49,138 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:72]
+2025-04-07 00:32:41,655 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:72]
+2025-04-07 00:36:43,216 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:72]
+2025-04-07 00:41:20,724 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:72]
+2025-04-07 14:07:26,059 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-07 14:39:52,070 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-07 14:40:09,214 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-07 14:40:28,872 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-07 14:41:01,947 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-07 15:25:21,350 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-07 15:25:21,365 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-07 15:25:21,365 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-07 15:25:22,211 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-07 15:25:22,226 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-07 15:25:22,226 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-07 17:30:56,549 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-07 17:31:51,505 ERROR: Exception on /2/section/2/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
+Traceback (most recent call last):
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 443, in edit_section
+    return render_template('documents/section_form.html',
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
+    return _render(app, template, context)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2110, in _connection_for_bind
-    return trans._connection_for_bind(engine, execution_options)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<string>", line 2, in _connection_for_bind
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
-    ret_value = fn(self, *arg, **kw)
-                ^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1189, in _connection_for_bind
-    conn = bind.connect()
-           ^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3274, in connect
-    return self._connection_cls(self)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 148, in __init__
-    Connection._handle_dbapi_exception_noconnection(
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2439, in _handle_dbapi_exception_noconnection
-    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 146, in __init__
-    self._dbapi_connection = engine.raw_connection()
-                             ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 3298, in raw_connection
-    return self.pool.connect()
-           ^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 449, in connect
-    return _ConnectionFairy._checkout(self)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 1264, in _checkout
-    fairy = _ConnectionRecord.checkout(pool)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 713, in checkout
-    rec = pool._do_get()
-          ^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 179, in _do_get
-    with util.safe_reraise():
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
-    raise exc_value.with_traceback(exc_tb)
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\impl.py", line 177, in _do_get
-    return self._create_connection()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 390, in _create_connection
-    return _ConnectionRecord(self)
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 132, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\base.html", line 95, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 75, in block 'content'
+    {% for section_item in document.template.sections %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 490, in getattr
+    return getattr(obj, attribute)
            ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 675, in __init__
-    self.__connect()
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 901, in __connect
-    with util.safe_reraise():
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 146, in __exit__
-    raise exc_value.with_traceback(exc_tb)
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\pool\base.py", line 897, in __connect
-    self.dbapi_connection = connection = pool._invoke_creator(self)
-                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\engine\create.py", line 646, in connect
-    return dialect.connect(*cargs, **cparams)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 625, in connect
-    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unable to open database file
-(Background on this error at: https://sqlalche.me/e/20/e3q8)
+jinja2.exceptions.UndefinedError: 'app.models.DocumentApp object' has no attribute 'template'

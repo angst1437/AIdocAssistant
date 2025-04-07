@@ -8,7 +8,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
 from flask import current_app
-from app.models import Document, DocumentBlock
+from ..models import DocumentApp, DocumentBlock
 
 def export_to_docx(document_id):
     """
@@ -20,7 +20,7 @@ def export_to_docx(document_id):
     Returns:
         str: Path to the exported file
     """
-    document = Document.query.get_or_404(document_id)
+    document = DocumentApp.query.get_or_404(document_id)
     blocks = document.blocks.order_by(DocumentBlock.order).all()
     
     # Create a new Word document
@@ -80,7 +80,7 @@ def export_to_pdf(document_id):
     Returns:
         str: Path to the exported file
     """
-    document = Document.query.get_or_404(document_id)
+    document = DocumentApp.query.get_or_404(document_id)
     blocks = document.blocks.order_by(DocumentBlock.order).all()
     
     # Create output directory

@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
         heading: {
           options: [
             { model: "paragraph", view: "p", title: "Абзац", class: "ck-heading_paragraph" },
-            { model: "heading1", view: "h1", title: "Заголовок 1", class: "ck-heading_heading1" },
+            { model: "heading1", view: "h1", title: "Заг��ловок 1", class: "ck-heading_heading1" },
             { model: "heading2", view: "h2", title: "Заголовок 2", class: "ck-heading_heading2" },
             { model: "heading3", view: "h3", title: "Заголовок 3", class: "ck-heading_heading3" },
           ],

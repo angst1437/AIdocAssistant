@@ -1,0 +1,911 @@
+{% extends "base.html" %}
+
+{% block title %}{{ section.name }} | {{ document.title }} | НИР Ассистент{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ckeditor5-custom-build@1.0.0/build/ckeditor.css">
+<style>
+    .ck-editor__editable {
+        min-height: 400px;
+        max-height: 600px;
+    }
+    
+    .section-nav {
+        background-color: #f3f4f6;
+        border-radius: 1rem;
+        padding: 1rem;
+    }
+    
+    .section-nav-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        background-color: #e5e7eb;
+        color: #4b5563;
+        font-weight: 600;
+        margin: 0.5rem 0;
+        position: relative;
+    }
+    
+    .section-nav-item.active {
+        background-color: #4b5563;
+        color: white;
+    }
+    
+    .section-nav-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        width: 2px;
+        height: 1rem;
+        background-color: #d1d5db;
+    }
+    
+    .section-nav-connector {
+        width: 2px;
+        height: 1rem;
+        background-color: #d1d5db;
+        margin: 0 auto;
+    }
+    
+    .recommendation {
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .recommendation:hover {
+        background-color: rgba(79, 70, 229, 0.1);
+    }
+    
+    .recommendation.active {
+        background-color: rgba(79, 70, 229, 0.2);
+    }
+    
+    .recommendation-type {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .recommendation-type-style {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: rgb(245, 158, 11);
+    }
+    
+    .recommendation-type-grammar {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: rgb(239, 68, 68);
+    }
+    
+    .recommendation-type-gost {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: rgb(16, 185, 129);
+    }
+    
+    .recommendation-type-water {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: rgb(59, 130, 246);
+    }
+    
+    .recommendation-type-logic {
+        background-color: rgba(139, 92, 246, 0.1);
+        color: rgb(139, 92, 246);
+    }
+    
+    .toast {
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        z-index: 50;
+        transition: transform 0.3s, opacity 0.3s;
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    
+    .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    
+    .variant-button {
+        cursor: pointer;
+        transition: all 0.2s;
+        border-radius: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+        background-color: rgba(16, 185, 129, 0.1);
+        color: rgb(16, 185, 129);
+    }
+    
+    .variant-button:hover {
+        background-color: rgba(16, 185, 129, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row h-full">
+    <!-- Навигация по секциям -->
+    <div class="w-full md:w-1/6 p-4">
+        <div class="section-nav">
+            {% for section_item in document.template.sections %}
+            <a href="{{ url_for('documents.edit_section', document_id=document.id, section_id=section_item.id) }}" class="block">
+                <div class="section-nav-item {% if section_item.id == section.id %}active{% endif %}" title="{{ section_item.name }}">
+                    {{ section_item.code }}
+                </div>
+                {% if not loop.last %}
+                <div class="section-nav-connector"></div>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Редактор -->
+    <div class="w-full md:w-2/3 p-4">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
+            <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+                <h1 class="text-xl font-bold text-gray-900">{{ section.name }}</h1>
+                <div class="flex space-x-2">
+                    <button id="save-section" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Сохранить
+                    </button>
+                    <a href="{{ url_for('documents.edit_structured', document_id=document.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Вернуться к документу
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <form id="section-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div id="editor">{{ section_content.content|safe }}</div>
+                    <input type="hidden" name="content" id="content-input">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Панель рекомендаций -->
+    <div class="w-full md:w-1/3 p-4">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Проверить текст на:
+                </h3>
+                <div class="mt-4 space-y-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="check-spelling" class="check-type h-4 w-4 text-indigo-600 border-gray-300 rounded" value="spelling" checked>
+                        <label for="check-spelling" class="ml-2 block text-sm text-gray-900">
+                            Орфографическая проверка
+                        </label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="check-lexical" class="check-type h-4 w-4 text-indigo-600 border-gray-300 rounded" value="lexical" checked>
+                        <label for="check-lexical" class="ml-2 block text-sm text-gray-900">
+                            Лексическая проверка
+                        </label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="check-logic" class="check-type h-4 w-4 text-indigo-600 border-gray-300 rounded" value="logic" checked>
+                        <label for="check-logic" class="ml-2 block text-sm text-gray-900">
+                            Логическая связность и структура текста
+                        </label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="check-water" class="check-type h-4 w-4 text-indigo-600 border-gray-300 rounded" value="water" checked>
+                        <label for="check-water" class="ml-2 block text-sm text-gray-900">
+                            Проверка на «воду» и избыточность
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="w-full inline-flex justify-between items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <span id="current-ai-provider">YandexGPT</span>
+                            <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div x-show="open"
+                             @click.away="open = false"
+                             class="origin-top-right absolute right-0 mt-2 w-full rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                             role="menu"
+                             aria-orientation="vertical"
+                             aria-labelledby="ai-provider-menu-button"
+                             tabindex="-1">
+                            <a href="#" data-provider="yandex" class="ai-provider-option block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">YandexGPT</a>
+                            <a href="#" data-provider="gigachat" class="ai-provider-option block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">GigaChat</a>
+                            <a href="#" data-provider="gemini" class="ai-provider-option block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Gemini</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button id="analyze-text-btn" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Проверить
+                    </button>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-200">
+                <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Панель рекомендаций
+                    </h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                        <span id="recommendations-count">0</span> рекомендаций
+                    </p>
+                </div>
+
+                <div id="recommendations-container" class="px-4 py-5 sm:p-6 space-y-4 max-h-screen overflow-y-auto">
+                    <div class="text-center text-gray-500 py-8">
+                        Нажмите "Проверить" для получения рекомендаций.
+                    </div>
+                </div>
+
+                <div class="px-4 py-3 bg-gray-50 flex justify-between">
+                    <button id="prev-recommendation" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50" disabled>
+                        Предыдущая
+                    </button>
+                    <span id="recommendation-pagination" class="text-sm text-gray-500">0 из 0</span>
+                    <button id="next-recommendation" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50" disabled>
+                        Следующая
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast">
+    <div class="flex items-center">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div class="ml-3">
+            <p id="toast-message" class="text-sm font-medium text-gray-900"></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/ckeditor5-custom-build@1.0.0/build/ckeditor.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Глобальные переменные
+        let editor;
+        let currentAiProvider = 'yandex';
+        let recommendations = [];
+        let currentRecommendationIndex = -1;
+
+        // Инициализация CKEditor
+        ClassicEditor
+            .create(document.getElementById('editor'), {
+                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'outdent', 'indent', '|', 'blockQuote', 'insertTable', 'undo', 'redo'],
+                placeholder: 'Введите текст...',
+                heading: {
+                    options: [
+                        { model: 'paragraph', view: 'p', title: 'Абзац', class: 'ck-heading_paragraph' },
+                        { model: 'heading1', view: 'h1', title: 'Заголовок 1', class: 'ck-heading_heading1' },
+                        { model: 'heading2', view: 'h2', title: 'Заголовок 2', class: 'ck-heading_heading2' },
+                        { model: 'heading3', view: 'h3', title: 'Заголовок 3', class: 'ck-heading_heading3' }
+                    ]
+                }
+            })
+            .then(newEditor => {
+                editor = newEditor;
+            })
+            .catch(error => {
+                console.error('Error initializing editor:', error);
+            });
+
+        // Сохранение содержимого секции
+        function saveSection() {
+            const content = editor.getData();
+            document.getElementById('content-input').value = content;
+
+            const form = document.getElementById('section-form');
+            const formData = new FormData(form);
+
+            fetch(`/{{ document.id }}/section/{{ section.id }}/update`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Секция успешно сохранена');
+                } else {
+                    showToast('Ошибка при сохранении секции', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving section:', error);
+                showToast('Ошибка при сохранении секции', 'error');
+            });
+        }
+
+        // Анализ текста с помощью ИИ
+        function analyzeText() {
+            const content = editor.getData();
+            if (!content.trim()) {
+                showToast('Текст пуст. Нечего анализировать.', 'error');
+                return;
+            }
+
+            // Получаем выбранные типы проверок
+            const checkTypes = [];
+            document.querySelectorAll('.check-type:checked').forEach(checkbox => {
+                checkTypes.push(checkbox.value);
+            });
+
+            if (checkTypes.length === 0) {
+                showToast('Выберите хотя бы один тип проверки', 'error');
+                return;
+            }
+
+            // Показываем состояние загрузки
+            const analyzeBtn = document.getElementById('analyze-text-btn');
+            const originalText = analyzeBtn.textContent;
+            analyzeBtn.textContent = 'Анализ...';
+            analyzeBtn.disabled = true;
+
+            // Очищаем предыдущие рекомендации
+            document.getElementById('recommendations-container').innerHTML = `
+                <div class="text-center py-4">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-indigo-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="mt-2 text-sm text-gray-500">Анализ текста...</p>
+                </div>
+            `;
+
+            // Отправляем запрос на анализ
+            fetch('/ai/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    text: content,
+                    document_id: {{ document.id }},
+                    section_id: {{ section.id }},
+                    provider: currentAiProvider,
+                    check_type: checkTypes.join(',')
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Сбрасываем состояние кнопки
+                analyzeBtn.textContent = originalText;
+                analyzeBtn.disabled = false;
+
+                // Сохраняем рекомендации
+                recommendations = data;
+
+                // Отображаем рекомендации
+                displayRecommendations(recommendations);
+
+                // Обновляем счетчик и пагинацию
+                document.getElementById('recommendations-count').textContent = recommendations.length;
+                updatePagination();
+
+                // Активируем первую рекомендацию, если она есть
+                if (recommendations.length > 0) {
+                    setActiveRecommendation(0);
+                }
+            })
+            .catch(error => {
+                console.error('Error analyzing text:', error);
+                showToast('Ошибка при анализе текста', 'error');
+
+                // Сбрасываем состояние кнопки
+                analyzeBtn.textContent = originalText;
+                analyzeBtn.disabled = false;
+
+                // Показываем сообщение об ошибке
+                document.getElementById('recommendations-container').innerHTML = `
+                    <div class="text-center text-red-500 py-4">
+                        <p>Произошла ошибка при анализе текста.</p>
+                    </div>
+                `;
+            });
+        }
+
+        // Отображение рекомендаций
+        function displayRecommendations(recommendations) {
+            const container = document.getElementById('recommendations-container');
+
+            if (!recommendations || recommendations.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-green-500 py-8">
+                        <svg class="mx-auto h-12 w-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <p class="mt-2">Ошибок не найдено. Текст соответствует требованиям.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            recommendations.forEach((rec, index) => {
+                const typeClass = getRecommendationTypeClass(rec.type_of_error);
+
+                html += `
+                    <div class="recommendation p-4 rounded-lg border border-gray-200 hover:border-indigo-200"
+                         data-recommendation-id="${rec.id}"
+                         data-index="${index}"
+                         data-start="${rec.start_char}"
+                         data-end="${rec.end_char}">
+                        <div class="flex justify-between items-start">
+                            <span class="recommendation-type ${typeClass}">
+                                ${getRecommendationTypeLabel(rec.type_of_error)}
+                            </span>
+                            <div class="flex space-x-2">
+                                <button class="accept-recommendation-btn text-xs px-2 py-1 bg-green-50 text-green-700 rounded hover:bg-green-100">
+                                    Принять
+                                </button>
+                                <button class="reject-recommendation-btn text-xs px-2 py-1 bg-red-50 text-red-700 rounded hover:bg-red-100">
+                                    Отклонить
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <p class="text-sm font-medium text-gray-900">Проблема:</p>
+                            <p class="text-sm text-gray-700 mt-1">${rec.original_text}</p>
+                        </div>
+                        <div class="mt-2">
+                            <p class="text-sm font-medium text-gray-900">Рекомендация:</p>
+                            <p class="text-sm text-gray-700 mt-1">${rec.suggestion}</p>
+                        </div>
+                        <div class="mt-2">
+                            <p class="text-sm font-medium text-gray-900">Объяснение:</p>
+                            <p class="text-sm text-gray-700 mt-1">${rec.explanation}</p>
+                        </div>
+                `;
+
+                // Добавляем варианты исправления, если они есть
+                if (rec.variants && rec.variants.length > 0) {
+                    html += `
+                        <div class="mt-2">
+                            <p class="text-sm font-medium text-gray-900">Варианты исправления:</p>
+                            <div class="mt-1">
+                    `;
+
+                    rec.variants.forEach((variant, varIndex) => {
+                        html += `
+                            <span class="variant-button" data-recommendation-index="${index}" data-variant-index="${varIndex}">
+                                ${variant}
+                            </span>
+                        `;
+                    });
+
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `</div>`;
+            });
+
+            container.innerHTML = html;
+
+            // Добавляем обработчики событий для рекомендаций
+            addRecommendationEventListeners();
+        }
+
+        // Получение класса типа рекомендации
+        function getRecommendationTypeClass(type) {
+            switch (type.toLowerCase()) {
+                case 'style':
+                    return 'recommendation-type-style';
+                case 'grammar':
+                    return 'recommendation-type-grammar';
+                case 'gost':
+                    return 'recommendation-type-gost';
+                case 'water':
+                    return 'recommendation-type-water';
+                case 'logic':
+                    return 'recommendation-type-logic';
+                default:
+                    return 'recommendation-type-style';
+            }
+        }
+
+        // Получение метки типа рекомендации
+        function getRecommendationTypeLabel(type) {
+            switch (type.toLowerCase()) {
+                case 'style':
+                    return 'Стиль';
+                case 'grammar':
+                    return 'Грамматика';
+                case 'gost':
+                    return 'ГОСТ';
+                case 'water':
+                    return 'Вода';
+                case 'logic':
+                    return 'Логика';
+                case 'spelling':
+                    return 'Орфография';
+                case 'lexical':
+                    return 'Лексика';
+                default:
+                    return type;
+            }
+        }
+
+        // Добавление обработчиков событий для рекомендаций
+        function addRecommendationEventListeners() {
+            // Выделение текста при клике на рекомендацию
+            document.querySelectorAll('.recommendation').forEach(rec => {
+                rec.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    setActiveRecommendation(index);
+                });
+            });
+
+            // Принятие рекомендации
+            document.querySelectorAll('.accept-recommendation-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+
+                    const recElement = this.closest('.recommendation');
+                    const recId = recElement.getAttribute('data-recommendation-id');
+                    const index = parseInt(recElement.getAttribute('data-index'));
+
+                    // Применяем рекомендацию к тексту
+                    applyRecommendation(index, recommendations[index].suggestion);
+
+                    // Обновляем статус рекомендации
+                    updateRecommendationStatus(recId, 'accepted');
+
+                    // Удаляем рекомендацию из списка
+                    recommendations.splice(index, 1);
+
+                    // Обновляем отображение рекомендаций
+                    displayRecommendations(recommendations);
+
+                    // Обновляем счетчик и пагинацию
+                    document.getElementById('recommendations-count').textContent = recommendations.length;
+
+                    // Если текущий индекс больше длины массива, устанавливаем последний элемент
+                    if (currentRecommendationIndex >= recommendations.length && recommendations.length > 0) {
+                        currentRecommendationIndex = recommendations.length - 1;
+                    } else if (recommendations.length === 0) {
+                        currentRecommendationIndex = -1;
+                    }
+
+                    updatePagination();
+
+                    // Если есть активная рекомендация, выделяем её
+                    if (currentRecommendationIndex >= 0) {
+                        setActiveRecommendation(currentRecommendationIndex);
+                    }
+
+                    showToast('Рекомендация принята');
+                });
+            });
+
+            // Отклонение рекомендации
+            document.querySelectorAll('.reject-recommendation-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+
+                    const recElement = this.closest('.recommendation');
+                    const recId = recElement.getAttribute('data-recommendation-id');
+                    const index = parseInt(recElement.getAttribute('data-index'));
+
+                    // Обновляем статус рекомендации
+                    updateRecommendationStatus(recId, 'rejected');
+
+                    // Удаляем рекомендацию из списка
+                    recommendations.splice(index, 1);
+
+                    // Обновляем отображение рекомендаций
+                    displayRecommendations(recommendations);
+
+                    // Обновляем счетчик и пагинацию
+                    document.getElementById('recommendations-count').textContent = recommendations.length;
+
+                    // Если текущий индекс больше длины массива, устанавливаем последний элемент
+                    if (currentRecommendationIndex >= recommendations.length && recommendations.length > 0) {
+                        currentRecommendationIndex = recommendations.length - 1;
+                    } else if (recommendations.length === 0) {
+                        currentRecommendationIndex = -1;
+                    }
+
+                    updatePagination();
+
+                    // Если есть активная рекомендация, выделяем её
+                    if (currentRecommendationIndex >= 0) {
+                        setActiveRecommendation(currentRecommendationIndex);
+                    }
+
+                    showToast('Рекомендация отклонена');
+                });
+            });
+
+            // Выбор варианта исправления
+            document.querySelectorAll('.variant-button').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+
+                    const recIndex = parseInt(this.getAttribute('data-recommendation-index'));
+                    const variantIndex = parseInt(this.getAttribute('data-variant-index'));
+                    const variant = recommendations[recIndex].variants[variantIndex];
+
+                    // Применяем выбранный вариант к тексту
+                    applyRecommendation(recIndex, variant);
+
+                    // Обновляем статус рекомендации
+                    updateRecommendationStatus(recommendations[recIndex].id, 'accepted');
+
+                    // Удаляем рекомендацию из списка
+                    recommendations.splice(recIndex, 1);
+
+                    // Обновляем отображение рекомендаций
+                    displayRecommendations(recommendations);
+
+                    // Обновляем счетчик и пагинацию
+                    document.getElementById('recommendations-count').textContent = recommendations.length;
+
+                    // Если текущий индекс больше длины массива, устанавливаем последний элемент
+                    if (currentRecommendationIndex >= recommendations.length && recommendations.length > 0) {
+                        currentRecommendationIndex = recommendations.length - 1;
+                    } else if (recommendations.length === 0) {
+                        currentRecommendationIndex = -1;
+                    }
+
+                    updatePagination();
+
+                    // Если есть активная рекомендация, выделяем её
+                    if (currentRecommendationIndex >= 0) {
+                        setActiveRecommendation(currentRecommendationIndex);
+                    }
+
+                    showToast('Вариант применен');
+                });
+            });
+        }
+
+        // Установка активной рекомендации
+        function setActiveRecommendation(index) {
+            // Удаляем активный класс со всех рекомендаций
+            document.querySelectorAll('.recommendation').forEach(r => {
+                r.classList.remove('active');
+            });
+
+            // Если индекс некорректный, выходим
+            if (index < 0 || index >= recommendations.length) {
+                currentRecommendationIndex = -1;
+                updatePagination();
+                return;
+            }
+
+            // Устанавливаем текущий индекс
+            currentRecommendationIndex = index;
+
+            // Добавляем активный класс к выбранной рекомендации
+            const recElement = document.querySelector(`.recommendation[data-index="${index}"]`);
+            if (recElement) {
+                recElement.classList.add('active');
+
+                // Прокручиваем к рекомендации
+                recElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Выделяем текст в редакторе
+            const rec = recommendations[index];
+            highlightTextInEditor(rec.start_char, rec.end_char);
+
+            // Обновляем пагинацию
+            updatePagination();
+        }
+
+        // Выделение текста в редакторе
+        function highlightTextInEditor(start, end) {
+            if (!editor) return;
+
+            // Фокусируем редактор
+            editor.focus();
+
+            // Это упрощенный подход, который может не работать идеально со сложным HTML
+            // Более надежное решение должно использовать API CKEditor для выделения
+            const editorContent = editor.getData();
+
+            // Создаем временный div для парсинга HTML-содержимого
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = editorContent;
+
+            // Извлекаем текстовое содержимое
+            const textContent = tempDiv.textContent;
+
+            // Проверяем, что начальная и конечная позиции корректны
+            if (start >= 0 && end <= textContent.length) {
+                // Прокручиваем к позиции в редакторе
+                // Это упрощенный подход, который может не работать идеально
+                const selection = editor.model.document.selection;
+                const position = editor.model.createPositionAt(editor.model.document.getRoot(), start);
+
+                editor.model.change(writer => {
+                    writer.setSelection(writer.createRange(
+                        position,
+                        editor.model.createPositionAt(editor.model.document.getRoot(), end)
+                    ));
+                });
+            }
+        }
+
+        // Применение рекомендации к тексту
+        function applyRecommendation(index, suggestion) {
+            if (!editor) return;
+
+            const rec = recommendations[index];
+            const start = rec.start_char;
+            const end = rec.end_char;
+
+            // Получаем текущее содержимое редактора
+            const editorContent = editor.getData();
+
+            // Создаем временный div для парсинга HTML-содержимого
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = editorContent;
+
+            // Извлекаем текстовое содержимое
+            const textContent = tempDiv.textContent;
+
+            // Проверяем, что начальная и конечная позиции корректны
+            if (start >= 0 && end <= textContent.length) {
+                // Заменяем текст в редакторе
+                // Это упрощенный подход, который может не работать идеально со сложным HTML
+                // Более надежное решение должно использовать API CKEditor для замены текста
+                const beforeText = editorContent.substring(0, start);
+                const afterText = editorContent.substring(end);
+
+                editor.setData(beforeText + suggestion + afterText);
+
+                // Сохраняем изменения
+                saveSection();
+            }
+        }
+
+        // Обновление статуса рекомендации
+        function updateRecommendationStatus(recId, status) {
+            fetch(`/ai/recommendations/${recId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    status: status
+                })
+            })
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Error updating recommendation status:', error);
+            });
+        }
+
+        // Обновление пагинации
+        function updatePagination() {
+            const paginationElement = document.getElementById('recommendation-pagination');
+            const prevButton = document.getElementById('prev-recommendation');
+            const nextButton = document.getElementById('next-recommendation');
+
+            if (recommendations.length === 0) {
+                paginationElement.textContent = '0 из 0';
+                prevButton.disabled = true;
+                nextButton.disabled = true;
+                return;
+            }
+
+            paginationElement.textContent = `${currentRecommendationIndex + 1} из ${recommendations.length}`;
+
+            prevButton.disabled = currentRecommendationIndex <= 0;
+            nextButton.disabled = currentRecommendationIndex >= recommendations.length - 1;
+        }
+
+        // Показ уведомления
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+
+            toastMessage.textContent = message;
+
+            if (type === 'error') {
+                toast.querySelector('svg').classList.remove('text-green-400');
+                toast.querySelector('svg').classList.add('text-red-400');
+            } else {
+                toast.querySelector('svg').classList.remove('text-red-400');
+                toast.querySelector('svg').classList.add('text-green-400');
+            }
+
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Получение CSRF-токена
+        function getCsrfToken() {
+            return document.querySelector('input[name="csrf_token"]').value;
+        }
+        
+        // Обработчики событий
+        
+        // Кнопка сохранения
+        const saveButton = document.getElementById('save-section');
+        if (saveButton) {
+            saveButton.addEventListener('click', saveSection);
+        }
+        
+        // Кнопка анализа
+        const analyzeButton = document.getElementById('analyze-text-btn');
+        if (analyzeButton) {
+            analyzeButton.addEventListener('click', analyzeText);
+        }
+        
+        // Выбор ИИ-провайдера
+        document.querySelectorAll('.ai-provider-option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const provider = this.getAttribute('data-provider');
+                currentAiProvider = provider;
+                
+                // Обновляем текст кнопки
+                document.getElementById('current-ai-provider').textContent = this.textContent;
+                
+                showToast(`ИИ-провайдер изменен на ${this.textContent}`);
+            });
+        });
+        
+        // Кнопки навигации по рекомендациям
+        document.getElementById('prev-recommendation').addEventListener('click', function() {
+            if (currentRecommendationIndex > 0) {
+                setActiveRecommendation(currentRecommendationIndex - 1);
+            }
+        });
+        
+        document.getElementById('next-recommendation').addEventListener('click', function() {
+            if (currentRecommendationIndex < recommendations.length - 1) {
+                setActiveRecommendation(currentRecommendationIndex + 1);
+            }
+        });
+    });
+</script>
+{% endblock %}
+
