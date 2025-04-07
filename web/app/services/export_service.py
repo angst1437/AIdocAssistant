@@ -9,7 +9,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
 from flask import current_app
-from ..models import DocumentApp, DocumentSectionContent
+from web.app.models import DocumentApp, DocumentSectionContent
 
 
 def export_to_docx(document_id):

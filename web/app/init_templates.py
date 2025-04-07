@@ -1,5 +1,5 @@
-﻿from . import create_app, db
-from .models import DocumentTemplate, DocumentSection
+﻿from web.app import create_app, db
+from web.app.models import DocumentTemplate, DocumentSection
 
 def init_templates():
     app = create_app()

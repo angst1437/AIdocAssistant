@@ -1,6 +1,6 @@
 ﻿from flask import current_app
-from .. import db
-from ..models import DocumentApp, DocumentSection, DocumentSectionContent, TextRecommendation
+from web.app import db
+from web.app.models import DocumentApp, DocumentSection, DocumentSectionContent, TextRecommendation
 import os
 from datetime import datetime
 

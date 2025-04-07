@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, abort, send_file, current_app, \
     session
 from flask_login import login_required, current_user
-from .. import db
-from ..models import DocumentApp, DocumentTemplate, DocumentSection, DocumentSectionContent
-from ..services.document_service import DocumentService
-from ..services.export_service import export_to_docx, export_to_pdf
-from ..utils.decorators import log_activity
+from web.app import db
+from web.app.models import DocumentApp, DocumentTemplate, DocumentSection, DocumentSectionContent
+from web.app.services.document_service import DocumentService
+from web.app.services.export_service import export_to_docx, export_to_pdf
+from web.app.utils.decorators import log_activity
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename

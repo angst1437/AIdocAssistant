@@ -2,9 +2,9 @@ from flask import Blueprint, request, jsonify, current_app, abort
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 import os
-from .. import db
-from ..models import ErrorReport
-from ..utils.decorators import log_activity
+from web.app import db
+from web.app.models import ErrorReport
+from web.app.utils.decorators import log_activity
 from datetime import datetime
 
 feedback_bp = Blueprint('feedback', __name__)

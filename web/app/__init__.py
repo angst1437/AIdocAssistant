@@ -6,6 +6,9 @@ from flask_migrate import Migrate
 import logging
 from logging.handlers import RotatingFileHandler
 from flask_wtf.csrf import CSRFProtect
+import click
+from flask.cli import with_appcontext
+from web.app.seeds import seed_initial_data
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -23,7 +26,7 @@ def create_app(config_class=None):
 
     # Load configuration
     if config_class is None:
-        app.config.from_object('config.Config')
+        app.config.from_object('web.config.Config')
     else:
         app.config.from_object(config_class)
 
@@ -32,6 +35,19 @@ def create_app(config_class=None):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     csrf.init_app(app)
+
+    # --- Регистрация команды сидинга ---
+    @app.cli.command("seed-db")
+    @with_appcontext  # Обеспечивает доступ к контексту приложения (включая db)
+    def seed_db_command():
+        """Заполняет базу данных начальными данными (шаблоны ГОСТ и т.д.)."""
+        from .seeds import seed_initial_data
+
+        if seed_initial_data():
+            click.echo("База данных успешно заполнена начальными данными.")
+        else:
+            click.echo("Начальные данные уже существуют.")
+
 
     # Ensure instance folder exists
     os.makedirs(app.instance_path, exist_ok=True)

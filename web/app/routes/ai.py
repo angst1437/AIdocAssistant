@@ -2,11 +2,11 @@ from flask import Blueprint, request, jsonify, current_app
 
 from flask import Blueprint, request, jsonify, current_app, abort
 from flask_login import login_required, current_user
-from .. import db
-from ..models import DocumentApp, DocumentSection, DocumentSectionContent, TextRecommendation
-from ..services.ai_clients import get_ai_client
-from ..services.recommendation_service import RecommendationService
-from ..utils.decorators import log_activity
+from web.app import db
+from web.app.models import DocumentApp, DocumentSection, DocumentSectionContent, TextRecommendation
+from web.app.services.ai_clients import get_ai_client
+from web.app.services.recommendation_service import RecommendationService
+from web.app.utils.decorators import log_activity
 
 ai_bp = Blueprint('ai', __name__)
 

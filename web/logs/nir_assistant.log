@@ -68,3 +68,41 @@ FROM document_section
 WHERE document_section.template_id = ? ORDER BY document_section."order"]
 [parameters: (1,)]
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-04-07 22:39:01,046 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:65]
+2025-04-07 22:39:29,250 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:65]
+2025-04-07 22:39:58,390 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:65]
+2025-04-07 22:42:43,786 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:65]
+2025-04-07 22:43:49,779 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:65]
+2025-04-07 22:44:25,663 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:65]
+2025-04-07 22:46:04,784 ERROR: Exception on /upload [POST] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
+Traceback (most recent call last):
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\web\app\utils\decorators.py", line 20, in decorated_function
+    result = f(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 127, in upload_document
+    session['temp_document_id'] = document.id
+                                  ^^^^^^^^^^^
+AttributeError: 'Response' object has no attribute 'id'
+2025-04-07 23:11:14,465 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:80]
+2025-04-07 23:12:20,872 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:80]
+2025-04-07 23:12:27,127 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:80]
+2025-04-07 23:18:12,095 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:80]
+2025-04-07 23:18:29,148 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:80]
+2025-04-07 23:18:35,891 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:80]
+2025-04-07 23:18:46,562 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:80]
+2025-04-07 23:18:57,759 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:80]

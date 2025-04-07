@@ -1,6 +1,6 @@
-﻿from .. import db
-from ..models import TextRecommendation, DocumentApp
-from .document_service import DocumentService
+﻿from web.app import db
+from web.app.models import TextRecommendation, DocumentApp
+from web.app.services.document_service import DocumentService
 
 
 class RecommendationService:
