@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ section.name }} | {{ document.title }} | НИР Ассистент{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ckeditor5-custom-build@1.0.0/build/ckeditor.css">
@@ -9,64 +9,46 @@
         min-height: 400px;
         max-height: 600px;
     }
-    
+
     .section-nav {
         background-color: #f3f4f6;
-        border-radius: 1rem;
+        border-radius: 0.5rem;
         padding: 1rem;
     }
-    
+
     .section-nav-item {
         display: flex;
         align-items: center;
-        justify-content: center;
-        width: 3rem;
-        height: 3rem;
-        border-radius: 50%;
-        background-color: #e5e7eb;
-        color: #4b5563;
-        font-weight: 600;
-        margin: 0.5rem 0;
-        position: relative;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        margin-bottom: 0.5rem;
+        transition: background-color 0.2s;
     }
-    
+
+    .section-nav-item:hover {
+        background-color: #e5e7eb;
+    }
+
     .section-nav-item.active {
-        background-color: #4b5563;
+        background-color: #6366f1;
         color: white;
     }
-    
-    .section-nav-item:not(:last-child)::after {
-        content: '';
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        width: 2px;
-        height: 1rem;
-        background-color: #d1d5db;
-    }
-    
-    .section-nav-connector {
-        width: 2px;
-        height: 1rem;
-        background-color: #d1d5db;
-        margin: 0 auto;
-    }
-    
+
     .recommendation {
         cursor: pointer;
         transition: background-color 0.2s;
         border-radius: 0.5rem;
         margin-bottom: 1rem;
     }
-    
+
     .recommendation:hover {
         background-color: rgba(79, 70, 229, 0.1);
     }
-    
+
     .recommendation.active {
         background-color: rgba(79, 70, 229, 0.2);
     }
-    
+
     .recommendation-type {
         display: inline-block;
         padding: 0.25rem 0.5rem;
@@ -74,32 +56,32 @@
         font-size: 0.75rem;
         font-weight: 500;
     }
-    
+
     .recommendation-type-style {
         background-color: rgba(245, 158, 11, 0.1);
         color: rgb(245, 158, 11);
     }
-    
+
     .recommendation-type-grammar {
         background-color: rgba(239, 68, 68, 0.1);
         color: rgb(239, 68, 68);
     }
-    
+
     .recommendation-type-gost {
         background-color: rgba(16, 185, 129, 0.1);
         color: rgb(16, 185, 129);
     }
-    
+
     .recommendation-type-water {
         background-color: rgba(59, 130, 246, 0.1);
         color: rgb(59, 130, 246);
     }
-    
+
     .recommendation-type-logic {
         background-color: rgba(139, 92, 246, 0.1);
         color: rgb(139, 92, 246);
     }
-    
+
     .toast {
         position: fixed;
         bottom: 1rem;
@@ -113,12 +95,12 @@
         transform: translateY(100%);
         opacity: 0;
     }
-    
+
     .toast.show {
         transform: translateY(0);
         opacity: 1;
     }
-    
+
     .variant-button {
         cursor: pointer;
         transition: all 0.2s;
@@ -130,7 +112,7 @@
         background-color: rgba(16, 185, 129, 0.1);
         color: rgb(16, 185, 129);
     }
-    
+
     .variant-button:hover {
         background-color: rgba(16, 185, 129, 0.2);
     }
@@ -138,89 +120,132 @@
 {% endblock %}
 
 {% block content %}
-<div class="flex flex-col md:flex-row h-full">
-    <!-- Навигация по секциям -->
-    <div class="w-full md:w-1/6 p-4">
-        <div class="section-nav">
-            {% for section_item in document.template.sections %}
-            <a href="{{ url_for('documents.edit_section', document_id=document.id, section_id=section_item.id) }}" class="block">
-                <div class="section-nav-item {% if section_item.id == section.id %}active{% endif %}" title="{{ section_item.name }}">
-                    {{ section_item.code }}
+<div class="container mx-auto px-4 py-6">
+    <!-- Панель управления документом -->
+    <div class="bg-white shadow-md rounded-lg mb-6">
+        <div class="px-6 py-4 flex justify-between items-center">
+            <div class="flex-1">
+                <h1 class="text-2xl font-bold text-gray-900">{{ document.title }}</h1>
+                <p class="text-sm text-gray-500">Последнее обновление: {{ document.updated_at.strftime('%d.%m.%Y %H:%M') }}</p>
+            </div>
+            <div class="flex space-x-2">
+                <a href="{{ url_for('documents.preview_document', document_id=document.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <svg class="mr-2 -ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                    </svg>
+                    Предпросмотр
+                </a>
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="mr-2 -ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                        Экспорт
+                        <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div x-show="open"
+                         @click.away="open = false"
+                         class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                         role="menu"
+                         aria-orientation="vertical"
+                         aria-labelledby="export-menu-button"
+                         tabindex="-1">
+                        <a href="{{ url_for('documents.export_document', document_id=document.id, format='docx') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Экспорт в DOCX</a>
+                        <a href="{{ url_for('documents.export_document', document_id=document.id, format='pdf') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Экспорт в PDF</a>
+                    </div>
                 </div>
-                {% if not loop.last %}
-                <div class="section-nav-connector"></div>
-                {% endif %}
-            </a>
-            {% endfor %}
+                <a href="{{ url_for('documents.structure', document_id=document.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <svg class="mr-2 -ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    К структуре
+                </a>
+            </div>
         </div>
     </div>
-    
-    <!-- Редактор -->
-    <div class="w-full md:w-2/3 p-4">
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
-            <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
-                <h1 class="text-xl font-bold text-gray-900">{{ section.name }}</h1>
-                <div class="flex space-x-2">
-                    <button id="save-section" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Сохранить
-                    </button>
-                    <a href="{{ url_for('documents.edit_structured', document_id=document.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Вернуться к документу
-                    </a>
+
+    <div class="flex flex-col md:flex-row gap-6">
+        <!-- Навигация по секциям -->
+        <div class="w-full md:w-1/5">
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Разделы документа</h2>
+                <div class="section-nav">
+                    {% for section_item in template_sections %}
+                        {% if section_item.id in existing_sections %}
+                            <a href="{{ url_for('documents.edit_section', document_id=document.id, section_slug=section_item.slug) }}" class="section-nav-item {% if section_item.id == section.id %}active{% endif %}">
+                                <span class="mr-2">{{ section_item.code }}</span>
+                                <span>{{ section_item.name }}</span>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
                 </div>
             </div>
         </div>
-        
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
+
+        <!-- Редактор -->
+        <div class="w-full md:w-2/5">
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">{{ section.name }}</h2>
                 <form id="section-form">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div id="editor">{{ section_content.content|safe }}</div>
                     <input type="hidden" name="content" id="content-input">
+
+                    <div class="mt-4 flex justify-end">
+                        <button type="button" id="save-section-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <svg class="mr-2 -ml-1 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            Сохранить
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
-    </div>
 
-    <!-- Панель рекомендаций -->
-    <div class="w-full md:w-1/3 p-4">
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div class="px-4 py-5 sm:px-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">
-                    Проверить текст на:
-                </h3>
-                <div class="mt-4 space-y-2">
-                    <div class="flex items-center">
-                        <input type="checkbox" id="check-spelling" class="check-type h-4 w-4 text-indigo-600 border-gray-300 rounded" value="spelling" checked>
-                        <label for="check-spelling" class="ml-2 block text-sm text-gray-900">
-                            Орфографическая проверка
-                        </label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="check-lexical" class="check-type h-4 w-4 text-indigo-600 border-gray-300 rounded" value="lexical" checked>
-                        <label for="check-lexical" class="ml-2 block text-sm text-gray-900">
-                            Лексическая проверка
-                        </label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="check-logic" class="check-type h-4 w-4 text-indigo-600 border-gray-300 rounded" value="logic" checked>
-                        <label for="check-logic" class="ml-2 block text-sm text-gray-900">
-                            Логическая связность и структура текста
-                        </label>
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" id="check-water" class="check-type h-4 w-4 text-indigo-600 border-gray-300 rounded" value="water" checked>
-                        <label for="check-water" class="ml-2 block text-sm text-gray-900">
-                            Проверка на «воду» и избыточность
-                        </label>
+        <!-- Панель рекомендаций -->
+        <div class="w-full md:w-2/5">
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Проверка текста</h2>
+
+                <div class="mb-4">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">Проверить текст на:</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="check-spelling" class="check-type h-4 w-4 text-indigo-600 border-gray-300 rounded" value="spelling" checked>
+                            <label for="check-spelling" class="ml-2 block text-sm text-gray-900">
+                                Орфографическая проверка
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="check-lexical" class="check-type h-4 w-4 text-indigo-600 border-gray-300 rounded" value="lexical" checked>
+                            <label for="check-lexical" class="ml-2 block text-sm text-gray-900">
+                                Лексическая проверка
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="check-logic" class="check-type h-4 w-4 text-indigo-600 border-gray-300 rounded" value="logic" checked>
+                            <label for="check-logic" class="ml-2 block text-sm text-gray-900">
+                                Логическая связность и структура текста
+                            </label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="check-water" class="check-type h-4 w-4 text-indigo-600 border-gray-300 rounded" value="water" checked>
+                            <label for="check-water" class="ml-2 block text-sm text-gray-900">
+                                Проверка на «воду» и избыточность
+                            </label>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-4">
+                <div class="mb-4">
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open" class="w-full inline-flex justify-between items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             <span id="current-ai-provider">YandexGPT</span>
-                            <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                             </svg>
                         </button>
@@ -238,48 +263,44 @@
                     </div>
                 </div>
 
-                <div class="mt-4">
+                <div class="mb-4">
                     <button id="analyze-text-btn" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Проверить
                     </button>
                 </div>
-            </div>
 
-            <div class="border-t border-gray-200">
-                <div class="px-4 py-5 sm:px-6">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900">
-                        Панель рекомендаций
-                    </h3>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                <div class="border-t border-gray-200 pt-4">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">Рекомендации</h3>
+                    <p class="text-xs text-gray-500 mb-4">
                         <span id="recommendations-count">0</span> рекомендаций
                     </p>
-                </div>
 
-                <div id="recommendations-container" class="px-4 py-5 sm:p-6 space-y-4 max-h-screen overflow-y-auto">
-                    <div class="text-center text-gray-500 py-8">
-                        Нажмите "Проверить" для получения рекомендаций.
+                    <div id="recommendations-container" class="space-y-4 max-h-96 overflow-y-auto">
+                        <div class="text-center text-gray-500 py-8">
+                            Нажмите "Проверить" для получения рекомендаций.
+                        </div>
                     </div>
-                </div>
 
-                <div class="px-4 py-3 bg-gray-50 flex justify-between">
-                    <button id="prev-recommendation" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50" disabled>
-                        Предыдущая
-                    </button>
-                    <span id="recommendation-pagination" class="text-sm text-gray-500">0 из 0</span>
-                    <button id="next-recommendation" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50" disabled>
-                        Следующая
-                    </button>
+                    <div class="mt-4 flex justify-between items-center">
+                        <button id="prev-recommendation" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50" disabled>
+                            Предыдущая
+                        </button>
+                        <span id="recommendation-pagination" class="text-sm text-gray-500">0 из 0</span>
+                        <button id="next-recommendation" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50" disabled>
+                            Следующая
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Toast Notification -->
+<!-- Toast уведомление -->
 <div id="toast" class="toast">
     <div class="flex items-center">
         <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
             </svg>
         </div>
@@ -317,10 +338,28 @@
             })
             .then(newEditor => {
                 editor = newEditor;
+
+                // Настройка автосохранения
+                editor.model.document.on('change:data', debounce(() => {
+                    saveSection();
+                }, 2000));
             })
             .catch(error => {
                 console.error('Error initializing editor:', error);
             });
+
+        // Функция debounce для предотвращения частых сохранений
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
 
         // Сохранение содержимого секции
         function saveSection() {
@@ -340,14 +379,14 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showToast('С��кция успешно сохранена');
+                    showToast('Раздел успешно сохранен');
                 } else {
-                    showToast('Ошибка при сохранении секции', 'error');
+                    showToast('Ошибка при сохранении раздела', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error saving section:', error);
-                showToast('Ошибка при сохранении секции', 'error');
+                showToast('Ошибка при сохранении раздела', 'error');
             });
         }
 
@@ -863,11 +902,11 @@
         function getCsrfToken() {
             return document.querySelector('input[name="csrf_token"]').value;
         }
-        
+
         // Обработчики событий
-        
+
         // Кнопка сохранения
-        const saveButton = document.getElementById('save-section');
+        const saveButton = document.getElementById('save-section-btn');
         if (saveButton) {
             saveButton.addEventListener('click', saveSection);
         }

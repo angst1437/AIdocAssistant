@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, abort
 from flask_login import login_required, current_user
-from ..import db
+from .. import db
 from ..models import User, ErrorReport, LogEntry
 from ..utils.decorators import admin_required, log_activity
 

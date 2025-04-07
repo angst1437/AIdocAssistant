@@ -333,8 +333,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const typeClass = getRecommendationTypeClass(rec.type_of_error)
 
       html += `
-                <div class="recommendation p-4 rounded-lg border border-gray-200 hover:border-indigo-200" 
-                     data-recommendation-id="${rec.id}" 
+                <div class="recommendation p-4 rounded-lg border border-gray-200 hover:border-indigo-200"
+                     data-recommendation-id="${rec.id}"
                      data-block-id="${blockId}"
                      data-start="${rec.start_char}"
                      data-end="${rec.end_char}">

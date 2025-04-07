@@ -21,25 +21,18 @@ def create_app(config_class=None):
                 instance_path=os.path.join(project_root, 'instance'),
                 instance_relative_config=True)
 
-
-    print(f"DEBUG: Project Root: {project_root}")
-    print(f"DEBUG: Calculated Instance Path: {app.instance_path}")
-
-
     # Load configuration
     if config_class is None:
         app.config.from_object('config.Config')
     else:
         app.config.from_object(config_class)
 
-    print(f"DEBUG: SQLALCHEMY_DATABASE_URI from config: {app.config.get('SQLALCHEMY_DATABASE_URI')}")
-    
     # Initialize extensions with app
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     csrf.init_app(app)
-    
+
     # Ensure instance folder exists
     os.makedirs(app.instance_path, exist_ok=True)
     os.makedirs(os.path.join(app.instance_path, 'uploads', 'error_reports'), exist_ok=True)
@@ -50,13 +43,13 @@ def create_app(config_class=None):
     from .routes.ai import ai_bp
     from .routes.feedback import feedback_bp
     from .routes.admin import admin_bp
-    
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(documents_bp)
     app.register_blueprint(ai_bp)
     app.register_blueprint(feedback_bp)
     app.register_blueprint(admin_bp)
-    
+
     # Setup logging
     if not app.debug and not app.testing:
         if not os.path.exists('logs'):
@@ -67,23 +60,25 @@ def create_app(config_class=None):
         ))
         file_handler.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
-        
+
         app.logger.setLevel(logging.INFO)
         app.logger.info('NIR Assistant startup')
-    
+
     # Shell context
     @app.shell_context_processor
     def make_shell_context():
-        from web.app.models import User, DocumentApp, DocumentBlock, Recommendation, ErrorReport, LogEntry
+        from .models import User, DocumentApp, DocumentSection, DocumentSectionContent, TextRecommendation, ErrorReport, \
+            LogEntry
         return {
-            'db': db, 
-            'User': User, 
+            'db': db,
+            'User': User,
             'Document': DocumentApp,
-            'DocumentBlock': DocumentBlock,
-            'Recommendation': Recommendation,
+            'DocumentSection': DocumentSection,
+            'DocumentSectionContent': DocumentSectionContent,
+            'TextRecommendation': TextRecommendation,
             'ErrorReport': ErrorReport,
             'LogEntry': LogEntry
         }
-    
+
     return app
 

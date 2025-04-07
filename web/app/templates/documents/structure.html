@@ -1,0 +1,224 @@
+﻿{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Панель управления документом -->
+    <div class="bg-white shadow-md rounded-lg mb-6">
+        <div class="px-6 py-4 flex justify-between items-center">
+            <div class="flex-1">
+                <h1 class="text-2xl font-bold text-gray-900">{{ document.title }}</h1>
+                <p class="text-sm text-gray-500">Последнее обновление: {{ document.updated_at.strftime('%d.%m.%Y %H:%M') }}</p>
+            </div>
+            <div class="flex space-x-2">
+                <a href="{{ url_for('documents.preview_document', document_id=document.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <svg class="mr-2 -ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                    </svg>
+                    Предпросмотр
+                </a>
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg class="mr-2 -ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                        Экспорт
+                        <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div x-show="open" 
+                         @click.away="open = false"
+                         class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" 
+                         role="menu" 
+                         aria-orientation="vertical" 
+                         aria-labelledby="export-menu-button" 
+                         aria-orientation="vertical"
+                         aria-labelledby="export-menu-button"
+                         tabindex="-1">
+                        <a href="{{ url_for('documents.export_document', document_id=document.id, format='docx') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Экспорт в DOCX</a>
+                        <a href="{{ url_for('documents.export_document', document_id=document.id, format='pdf') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Экспорт в PDF</a>
+                    </div>
+                </div>
+                <button id="rename-document-btn" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <svg class="mr-2 -ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                    Переименовать
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Структура документа -->
+    <div class="bg-white shadow-md rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-900">Структура документа</h2>
+            <p class="text-sm text-gray-500">Управление разделами документа</p>
+        </div>
+        <div class="px-6 py-4">
+            <ul class="divide-y divide-gray-200">
+                {% for section in template_sections %}
+                <li class="py-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900">{{ section.name }}</h3>
+                            <p class="text-sm text-gray-500">{{ section.description }}</p>
+                        </div>
+                        <div>
+                            {% if section.id in existing_sections %}
+                                <a href="{{ url_for('documents.edit_section', document_id=document.id, section_slug=section.slug) }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Редактировать
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('documents.edit_section', document_id=document.id, section_slug=section.slug) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    Создать
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно переименования документа -->
+<div id="rename-modal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Переименовать документ
+                        </h3>
+                        <div class="mt-2">
+                            <input type="text" id="document-title-input" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value="{{ document.title }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" id="save-title-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    Сохранить
+                </button>
+                <button type="button" id="cancel-rename-btn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Отмена
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast уведомление -->
+<div id="toast" class="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-4 hidden">
+    <div class="flex items-center">
+        <div class="flex-shrink-0">
+            <svg class="h-6 w-6 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+        <div class="ml-3">
+            <p id="toast-message" class="text-sm font-medium text-gray-900"></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const renameBtn = document.getElementById('rename-document-btn');
+        const renameModal = document.getElementById('rename-modal');
+        const cancelRenameBtn = document.getElementById('cancel-rename-btn');
+        const saveTitleBtn = document.getElementById('save-title-btn');
+        const titleInput = document.getElementById('document-title-input');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        
+        // Показать модальное окно переименования
+        renameBtn.addEventListener('click', function() {
+            renameModal.classList.remove('hidden');
+        });
+        
+        // Скрыть модальное окно
+        cancelRenameBtn.addEventListener('click', function() {
+            renameModal.classList.add('hidden');
+        });
+        
+        // Сохранить новое название
+        saveTitleBtn.addEventListener('click', function() {
+            const newTitle = titleInput.value.trim();
+            
+            if (!newTitle) {
+                showToast('Название документа не может быть пустым', 'error');
+                return;
+            }
+            
+            fetch('/{{ document.id }}/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    title: newTitle
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Обновляем заголовок на странице
+                    document.querySelector('h1').textContent = newTitle;
+                    document.title = newTitle + ' - Структура';
+                    
+                    // Скрываем модальное окно
+                    renameModal.classList.add('hidden');
+                    
+                    // Показываем уведомление
+                    showToast('Название документа успешно обновлено');
+                } else {
+                    showToast('Ошибка при обновлении названия документа', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Ошибка при обновлении названия документа', 'error');
+            });
+        });
+        
+        // Функция для отображения уведомления
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+            
+            // Изменяем иконку в зависимости от типа уведомления
+            const icon = toast.querySelector('svg');
+            if (type === 'success') {
+                icon.classList.remove('text-red-400');
+                icon.classList.add('text-green-400');
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />';
+            } else {
+                icon.classList.remove('text-green-400');
+                icon.classList.add('text-red-400');
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />';
+            }
+            
+            // Показываем уведомление
+            toast.classList.remove('hidden');
+            
+            // Скрываем уведомление через 3 секунды
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+    });
+</script>
+{% endblock %}
+

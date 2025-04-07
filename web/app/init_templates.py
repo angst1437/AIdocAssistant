@@ -22,9 +22,10 @@ def init_templates():
             {
                 "name": "Титульный лист",
                 "code": "ТЛ",
+                "slug": "title-page",
                 "description": "Титульный лист отчета о НИР",
                 "order": 1,
-                "is_form_based": True,
+                "editor_type": 1,  # Форма
                 "form_schema": [
                     {
                         "name": "organization",
@@ -107,9 +108,10 @@ def init_templates():
             {
                 "name": "Список исполнителей",
                 "code": "СИ",
+                "slug": "executors",
                 "description": "Список исполнителей отчета о НИР",
                 "order": 2,
-                "is_form_based": True,
+                "editor_type": 1,  # Форма
                 "form_schema": [
                     {
                         "name": "executors",
@@ -122,65 +124,188 @@ def init_templates():
             {
                 "name": "Реферат",
                 "code": "Р",
+                "slug": "abstract",
                 "description": "Реферат отчета о НИР",
                 "order": 3,
-                "is_form_based": False
+                "editor_type": 3,  # Смешанный
+                "form_schema": [
+                    {
+                        "name": "keywords",
+                        "label": "Ключевые слова",
+                        "type": "text",
+                        "required": True,
+                        "help_text": "Введите ключевые слова через запятую"
+                    }
+                ]
             },
             {
                 "name": "Содержание",
                 "code": "С",
+                "slug": "table-of-contents",
                 "description": "Содержание отчета о НИР",
                 "order": 4,
-                "is_form_based": False
+                "editor_type": 1,  # Форма
+                "form_schema": []  # Будет заполнено динамически
             },
             {
                 "name": "Термины и определения",
                 "code": "ТО",
+                "slug": "terms",
                 "description": "Термины и определения, используемые в отчете",
                 "order": 5,
-                "is_form_based": False
+                "editor_type": 3,  # Смешанный
+                "form_schema": [
+                    {
+                        "name": "terms",
+                        "label": "Термины и определения",
+                        "type": "array",
+                        "items": {
+                            "term": {
+                                "label": "Термин",
+                                "type": "text",
+                                "required": True
+                            },
+                            "definition": {
+                                "label": "Определение",
+                                "type": "textarea",
+                                "required": True
+                            }
+                        }
+                    }
+                ]
             },
             {
                 "name": "Перечень сокращений и обозначений",
                 "code": "ПСО",
+                "slug": "abbreviations",
                 "description": "Перечень сокращений и обозначений, используемых в отчете",
                 "order": 6,
-                "is_form_based": False
+                "editor_type": 3,  # Смешанный
+                "form_schema": [
+                    {
+                        "name": "abbreviations",
+                        "label": "Сокращения и обозначения",
+                        "type": "array",
+                        "items": {
+                            "abbr": {
+                                "label": "Сокращение/обозначение",
+                                "type": "text",
+                                "required": True
+                            },
+                            "description": {
+                                "label": "Расшифровка",
+                                "type": "text",
+                                "required": True
+                            }
+                        }
+                    }
+                ]
             },
             {
                 "name": "Введение",
                 "code": "В",
+                "slug": "introduction",
                 "description": "Введение отчета о НИР",
                 "order": 7,
-                "is_form_based": False
+                "editor_type": 2,  # Редактор с ИИ
+                "form_schema": None
             },
             {
                 "name": "Основная часть",
                 "code": "ОЧ",
+                "slug": "main",
                 "description": "Основная часть отчета о НИР",
                 "order": 8,
-                "is_form_based": False
+                "editor_type": 2,  # Редактор с ИИ
+                "form_schema": None
             },
             {
                 "name": "Заключение",
                 "code": "З",
+                "slug": "conclusion",
                 "description": "Заключение отчета о НИР",
                 "order": 9,
-                "is_form_based": False
+                "editor_type": 2,  # Редактор с ИИ
+                "form_schema": None
             },
             {
                 "name": "Список использованных источников",
                 "code": "СЛ",
+                "slug": "bibliography",
                 "description": "Список использованных источников",
                 "order": 10,
-                "is_form_based": False
+                "editor_type": 3,  # Смешанный
+                "form_schema": [
+                    {
+                        "name": "sources",
+                        "label": "Источники",
+                        "type": "array",
+                        "items": {
+                            "author": {
+                                "label": "Автор(ы)",
+                                "type": "text",
+                                "required": True
+                            },
+                            "title": {
+                                "label": "Название",
+                                "type": "text",
+                                "required": True
+                            },
+                            "publisher": {
+                                "label": "Издательство",
+                                "type": "text",
+                                "required": False
+                            },
+                            "year": {
+                                "label": "Год издания",
+                                "type": "text",
+                                "required": True
+                            },
+                            "pages": {
+                                "label": "Страницы",
+                                "type": "text",
+                                "required": False
+                            },
+                            "url": {
+                                "label": "URL",
+                                "type": "text",
+                                "required": False
+                            },
+                            "comment": {
+                                "label": "Комментарий",
+                                "type": "textarea",
+                                "required": False
+                            }
+                        }
+                    }
+                ]
             },
             {
                 "name": "Приложения",
                 "code": "П",
+                "slug": "appendices",
                 "description": "Приложения к отчету о НИР",
                 "order": 11,
-                "is_form_based": False
+                "editor_type": 3,  # Смешанный
+                "form_schema": [
+                    {
+                        "name": "appendices",
+                        "label": "Приложения",
+                        "type": "array",
+                        "items": {
+                            "title": {
+                                "label": "Название приложения",
+                                "type": "text",
+                                "required": True
+                            },
+                            "content": {
+                                "label": "Содержимое",
+                                "type": "editor",
+                                "required": True
+                            }
+                        }
+                    }
+                ]
             }
         ]
 
@@ -189,9 +314,10 @@ def init_templates():
                 template_id=gost_template.id,
                 name=section_data["name"],
                 code=section_data["code"],
+                slug=section_data["slug"],
                 description=section_data["description"],
                 order=section_data["order"],
-                is_form_based=section_data["is_form_based"],
+                editor_type=section_data["editor_type"],
                 form_schema=section_data.get("form_schema")
             )
             db.session.add(section)

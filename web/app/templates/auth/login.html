@@ -19,14 +19,14 @@
             {{ form.hidden_tag() }}
             <div class="rounded-md shadow-sm -space-y-px">
                 <div>
-                    <label for="username" class="sr-only">Имя пользователя</label>
+                    <label id="username" class="sr-only">Имя пользователя</label>
                     {{ form.username(class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm", placeholder="Имя пользователя") }}
                     {% for error in form.username.errors %}
                     <p class="text-red-500 text-xs mt-1">{{ error }}</p>
                     {% endfor %}
                 </div>
                 <div>
-                    <label for="password" class="sr-only">Пароль</label>
+                    <label id="password" class="sr-only">Пароль</label>
                     {{ form.password(class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm", placeholder="Пароль") }}
                     {% for error in form.password.errors %}
                     <p class="text-red-500 text-xs mt-1">{{ error }}</p>
@@ -37,7 +37,7 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     {{ form.remember_me(class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded") }}
-                    <label for="remember_me" class="ml-2 block text-sm text-gray-900">
+                    <label id="remember_me" class="ml-2 block text-sm text-gray-900">
                         Запомнить меня
                     </label>
                 </div>

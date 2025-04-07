@@ -1,5 +1,5 @@
 from app import create_app, db
-from app.models import User, DocumentApp, DocumentBlock, Recommendation, ErrorReport, LogEntry
+from app.models import User, DocumentApp, DocumentSectionContent, TextRecommendation, ErrorReport, LogEntry
 from app.init_templates import init_templates
 
 app = create_app()
@@ -10,8 +10,8 @@ def make_shell_context():
         'db': db, 
         'User': User, 
         'Document': DocumentApp,
-        'DocumentBlock': DocumentBlock,
-        'Recommendation': Recommendation,
+        'DocumentBlock': DocumentSectionContent,
+        'Recommendation': TextRecommendation,
         'ErrorReport': ErrorReport,
         'LogEntry': LogEntry
     }

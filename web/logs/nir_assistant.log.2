@@ -1,4 +1,13 @@
-2025-04-07 18:11:50,348 ERROR: Exception on /1/section/2/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
+2025-04-07 22:23:33,836 ERROR: Exception on /1/select-section [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
+Traceback (most recent call last):
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1965, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 921, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: document_section.slug
+
+The above exception was the direct cause of the following exception:
+
 Traceback (most recent call last):
   File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
     response = self.full_dispatch_request()
@@ -15,112 +24,47 @@ Traceback (most recent call last):
   File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 460, in edit_section
-    return render_template('documents/section_form.html',
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
-    return _render(app, template, context)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 132, in _render
-    rv = template.render(context)
-         ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "C:\Users\danil\AIdocAssistant\web\app\templates\base.html", line 95, in top-level template code
-    {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 75, in block 'content'
-    {% for section_item in document.template.sections %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 490, in getattr
-    return getattr(obj, attribute)
+  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 90, in select_section
+    sections = DocumentSection.query.filter_by(template_id=document.template_id).order_by(DocumentSection.order).all()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2688, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\orm\query.py", line 2842, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2262, in execute
+    return self._execute_internal(
            ^^^^^^^^^^^^^^^^^^^^^^^
-jinja2.exceptions.UndefinedError: 'app.models.DocumentApp object' has no attribute 'template'
-2025-04-07 18:11:52,374 ERROR: Exception on /1/section/4/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
-Traceback (most recent call last):
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 467, in edit_section
-    return render_template('documents/section_editor.html',
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
-    return _render(app, template, context)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 132, in _render
-    rv = template.render(context)
-         ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_editor.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "C:\Users\danil\AIdocAssistant\web\app\templates\base.html", line 95, in top-level template code
-    {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_editor.html", line 145, in block 'content'
-    {% for section_item in document.template.sections %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 490, in getattr
-    return getattr(obj, attribute)
-           ^^^^^^^^^^^^^^^^^^^^^^^
-jinja2.exceptions.UndefinedError: 'app.models.DocumentApp object' has no attribute 'template'
-2025-04-07 18:11:57,195 ERROR: Exception on /1/section/1/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
-Traceback (most recent call last):
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 460, in edit_section
-    return render_template('documents/section_form.html',
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
-    return _render(app, template, context)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 132, in _render
-    rv = template.render(context)
-         ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "C:\Users\danil\AIdocAssistant\web\app\templates\base.html", line 95, in top-level template code
-    {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 75, in block 'content'
-    {% for section_item in document.template.sections %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 490, in getattr
-    return getattr(obj, attribute)
-           ^^^^^^^^^^^^^^^^^^^^^^^
-jinja2.exceptions.UndefinedError: 'app.models.DocumentApp object' has no attribute 'template'
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2144, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\orm\context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1412, in execute
+    return meth(
+           ^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1635, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1844, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1984, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2339, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1965, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 921, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: document_section.slug
+[SQL: SELECT document_section.id AS document_section_id, document_section.template_id AS document_section_template_id, document_section.name AS document_section_name, document_section.code AS document_section_code, document_section.slug AS document_section_slug, document_section.description AS document_section_description, document_section."order" AS document_section_order, document_section.editor_type AS document_section_editor_type, document_section.form_schema AS document_section_form_schema 
+FROM document_section 
+WHERE document_section.template_id = ? ORDER BY document_section."order"]
+[parameters: (1,)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)

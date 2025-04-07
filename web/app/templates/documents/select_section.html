@@ -1,0 +1,42 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Выбор раздела | НИР Ассистент{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+   <h1 class="text-2xl font-bold text-center mb-8">Выберите раздел для начала работы</h1>
+   
+   <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+       <div class="px-4 py-5 sm:p-6">
+           <h3 class="text-lg leading-6 font-medium text-gray-900">{{ document.title }}</h3>
+           <p class="mt-2 text-sm text-gray-500">Выберите раздел, с которого хотите начать работу над документом</p>
+           
+           <div class="mt-6 space-y-4">
+               {% for section in sections %}
+               <div class="border border-gray-200 rounded-md p-4 hover:border-indigo-500 transition-colors">
+                   <div class="flex justify-between items-center">
+                       <div>
+                           <h4 class="text-base font-medium text-gray-900">{{ section.name }}</h4>
+                           <p class="text-sm text-gray-500">{{ section.description }}</p>
+                       </div>
+                       <a href="{{ url_for('documents.edit_section', document_id=document.id, section_slug=section.slug) }}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                           Начать с этого раздела
+                       </a>
+                   </div>
+               </div>
+               {% endfor %}
+           </div>
+       </div>
+   </div>
+   
+   <div class="flex justify-between">
+       <a href="{{ url_for('documents.create_options') }}" class="text-indigo-600 hover:text-indigo-900">
+           Вернуться к выбору способа создания
+       </a>
+       <a href="{{ url_for('documents.structure', document_id=document.id) }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+           Перейти к структуре документа
+       </a>
+   </div>
+</div>
+{% endblock %}
+

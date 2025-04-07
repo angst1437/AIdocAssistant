@@ -40,10 +40,12 @@ class DocumentApp(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    template_id = db.Column(db.Integer, db.ForeignKey('document_template.id'), nullable=True)
     created_at = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, index=True, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    blocks = db.relationship('DocumentBlock', backref='document', lazy='dynamic', cascade='all, delete-orphan')
+    sections = db.relationship('DocumentSectionContent', backref='document', lazy='dynamic', cascade='all, delete-orphan')
+    text_recommendations = db.relationship('TextRecommendation', backref='document', lazy='dynamic', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Document {self.title}>'
@@ -55,6 +57,7 @@ class DocumentTemplate(db.Model):
     description = db.Column(db.Text)
 
     sections = db.relationship('DocumentSection', backref='template', lazy='dynamic', cascade='all, delete-orphan')
+    documents = db.relationship('DocumentApp', backref='template', lazy='dynamic')
 
     def __repr__(self):
         return f'<DocumentTemplate {self.name}>'
@@ -65,10 +68,11 @@ class DocumentSection(db.Model):
     template_id = db.Column(db.Integer, db.ForeignKey('document_template.id'))
     name = db.Column(db.String(100), nullable=False)
     code = db.Column(db.String(20), nullable=False)  # ТЛ, В, ОЧ и т.д.
+    slug = db.Column(db.String(50), nullable=False)  # title-page, introduction, etc.
     description = db.Column(db.Text)
     order = db.Column(db.Integer, nullable=False)
-    is_form_based = db.Column(db.Boolean, default=False)  # Заполняется через форму или редактор
-    form_schema = db.Column(db.JSON, nullable=True)  # Схема формы в JSON (для form-based секций)
+    editor_type = db.Column(db.Integer, nullable=False)  # 1 - форма, 2 - редактор с ИИ, 3 - смешанный
+    form_schema = db.Column(db.JSON, nullable=True)  # Схема формы в JSON (для типов 1 и 3)
 
     document_sections = db.relationship('DocumentSectionContent', backref='section_template', lazy='dynamic')
 
@@ -80,51 +84,13 @@ class DocumentSectionContent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     document_id = db.Column(db.Integer, db.ForeignKey('document_app.id'))
     section_id = db.Column(db.Integer, db.ForeignKey('document_section.id'))
-    content = db.Column(db.Text)
+    content = db.Column(db.Text)  # HTML-содержимое для редактора
     form_data = db.Column(db.JSON, nullable=True)  # Данные формы в JSON
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
         return f'<DocumentSectionContent for doc {self.document_id}, section {self.section_id}>'
-
-
-# Обновим модель Document, добавив связь с шаблоном
-DocumentApp.template_id = db.Column(db.Integer, db.ForeignKey('document_template.id'), nullable=True)
-DocumentApp.sections = db.relationship('DocumentSectionContent', backref='document', lazy='dynamic',
-                                       cascade='all, delete-orphan')
-
-
-class DocumentBlock(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    document_id = db.Column(db.Integer, db.ForeignKey('document_app.id'))
-    block_type = db.Column(db.String(50))  # 'heading', 'paragraph', 'list', etc.
-    content = db.Column(db.Text)
-    order = db.Column(db.Integer)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    recommendations = db.relationship('Recommendation', backref='block', lazy='dynamic', cascade='all, delete-orphan')
-
-    def __repr__(self):
-        return f'<DocumentBlock {self.id} of {self.document_id}>'
-
-
-class Recommendation(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    block_id = db.Column(db.Integer, db.ForeignKey('document_block.id'))
-    start_char = db.Column(db.Integer)
-    end_char = db.Column(db.Integer)
-    original_text = db.Column(db.Text)
-    suggestion = db.Column(db.Text)
-    explanation = db.Column(db.Text)
-    type_of_error = db.Column(db.String(50))  # 'grammar', 'style', 'gost', etc.
-    ai_provider = db.Column(db.String(50))  # 'yandex', 'gigachat', 'gemini'
-    status = db.Column(db.String(20), default='pending')  # 'pending', 'accepted', 'rejected'
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def __repr__(self):
-        return f'<Recommendation {self.id} for block {self.block_id}>'
 
 
 class TextRecommendation(db.Model):
@@ -141,7 +107,6 @@ class TextRecommendation(db.Model):
     status = db.Column(db.String(20), default='pending')  # 'pending', 'accepted', 'rejected'
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    document = db.relationship('DocumentApp', backref='text_recommendations')
     section = db.relationship('DocumentSection', backref='recommendations')
 
     def __repr__(self):

@@ -1,8 +1,11 @@
+from flask import Blueprint, request, jsonify, current_app
+
 from flask import Blueprint, request, jsonify, current_app, abort
 from flask_login import login_required, current_user
 from .. import db
-from ..models import DocumentBlock, Recommendation, LogEntry, DocumentApp, DocumentSectionContent, TextRecommendation
+from ..models import DocumentApp, DocumentSection, DocumentSectionContent, TextRecommendation
 from ..services.ai_clients import get_ai_client
+from ..services.recommendation_service import RecommendationService
 from ..utils.decorators import log_activity
 
 ai_bp = Blueprint('ai', __name__)
@@ -18,23 +21,20 @@ def analyze_text():
         abort(400, description="Missing required fields")
 
     text = data['text']
-    block_id = data.get('block_id')
     section_id = data.get('section_id')
     document_id = data.get('document_id')
     provider = data.get('provider', 'yandex')
     check_type = data.get('check_type', 'all')
 
-    # Проверяем, что блок или секция принадлежат текущему пользователю
-    if block_id:
-        block = DocumentBlock.query.get_or_404(block_id)
-        if block.document.user_id != current_user.id:
-            abort(403)
-    elif section_id and document_id:
+    # Проверяем, что секция принадлежит текущему пользователю
+    if section_id and document_id:
         section_content = DocumentSectionContent.query.filter_by(
             document_id=document_id,
             section_id=section_id
         ).first_or_404()
-        if section_content.document.user_id != current_user.id:
+
+        document = DocumentApp.query.get_or_404(document_id)
+        if document.user_id != current_user.id:
             abort(403)
 
     try:
@@ -47,72 +47,38 @@ def analyze_text():
         # Сохраняем рекомендации в базу данных
         saved_recommendations = []
         for rec in recommendations:
-            if block_id:
-                # Для старого формата с блоками
-                recommendation = Recommendation(
-                    block_id=block_id,
-                    start_char=rec.get('start_char', 0),
-                    end_char=rec.get('end_char', 0),
-                    original_text=rec.get('original_text', ''),
-                    suggestion=rec.get('suggestion', ''),
-                    explanation=rec.get('explanation', ''),
-                    type_of_error=rec.get('type_of_error', 'unknown'),
-                    ai_provider=provider,
-                    status='pending'
-                )
-            else:
-                # Для нового формата с секциями
-                # Создаем новую модель TextRecommendation
-                recommendation = TextRecommendation(
-                    document_id=document_id,
-                    section_id=section_id,
-                    start_char=rec.get('start_char', 0),
-                    end_char=rec.get('end_char', 0),
-                    original_text=rec.get('original_text', ''),
-                    suggestion=rec.get('suggestion', ''),
-                    explanation=rec.get('explanation', ''),
-                    type_of_error=rec.get('type_of_error', 'unknown'),
-                    ai_provider=provider,
-                    status='pending'
-                )
+            # Создаем новую рекомендацию
+            recommendation = RecommendationService.create_recommendation(
+                document_id=document_id,
+                section_id=section_id,
+                user_id=current_user.id,
+                start_char=rec.get('start_char', 0),
+                end_char=rec.get('end_char', 0),
+                original_text=rec.get('original_text', ''),
+                suggestion=rec.get('suggestion', ''),
+                explanation=rec.get('explanation', ''),
+                type_of_error=rec.get('type_of_error', 'unknown'),
+                ai_provider=provider
+            )
 
-            db.session.add(recommendation)
-            saved_recommendations.append({
-                'id': None,  # Будет обновлено после коммита
-                'start_char': recommendation.start_char,
-                'end_char': recommendation.end_char,
-                'original_text': recommendation.original_text,
-                'suggestion': recommendation.suggestion,
-                'explanation': recommendation.explanation,
-                'type_of_error': recommendation.type_of_error,
-                'ai_provider': recommendation.ai_provider,
-                'status': recommendation.status,
-                'variants': rec.get('variants', [])  # Варианты исправления
-            })
-
-        db.session.commit()
-
-        # Обновляем ID после коммита
-        for i, rec in enumerate(saved_recommendations):
-            if block_id:
-                rec['id'] = recommendations[i].id
-            else:
-                rec['id'] = recommendations[i].id
+            if recommendation:
+                saved_recommendations.append({
+                    'id': recommendation.id,
+                    'start_char': recommendation.start_char,
+                    'end_char': recommendation.end_char,
+                    'original_text': recommendation.original_text,
+                    'suggestion': recommendation.suggestion,
+                    'explanation': recommendation.explanation,
+                    'type_of_error': recommendation.type_of_error,
+                    'ai_provider': recommendation.ai_provider,
+                    'status': recommendation.status,
+                    'variants': rec.get('variants', [])  # Варианты исправления
+                })
 
         return jsonify(saved_recommendations)
 
     except Exception as e:
         # Логируем ошибку
-        error_log = LogEntry(
-            level='ERROR',
-            message=f"AI analysis error: {str(e)}",
-            user_id=current_user.id,
-            request_url=request.path,
-            ip_address=request.remote_addr
-        )
-        db.session.add(error_log)
-        db.session.commit()
-
         current_app.logger.error(f"AI analysis error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
@@ -121,16 +87,9 @@ def analyze_text():
 @login_required
 def get_section_recommendations(document_id, section_id):
     """Получение рекомендаций для секции документа"""
-    # Проверяем, что документ принадлежит текущему пользователю
-    document = DocumentApp.query.get_or_404(document_id)
-    if document.user_id != current_user.id:
+    recommendations = RecommendationService.get_recommendations(document_id, section_id, current_user.id)
+    if recommendations is None:
         abort(403)
-
-    # Получаем рекомендации для секции
-    recommendations = TextRecommendation.query.filter_by(
-        document_id=document_id,
-        section_id=section_id
-    ).all()
 
     result = []
     for rec in recommendations:
@@ -154,28 +113,19 @@ def get_section_recommendations(document_id, section_id):
 @log_activity(level='INFO', message='Recommendation status updated')
 def update_recommendation_status(recommendation_id):
     """Обновление статуса рекомендации"""
-    # Проверяем, существует ли рекомендация для блока
-    recommendation = Recommendation.query.get(recommendation_id)
-
-    if recommendation:
-        # Проверяем, что блок принадлежит текущему пользователю
-        if recommendation.block.document.user_id != current_user.id:
-            abort(403)
-    else:
-        # Проверяем, существует ли рекомендация для секции
-        recommendation = TextRecommendation.query.get_or_404(recommendation_id)
-
-        # Проверяем, что документ принадлежит текущему пользователю
-        document = DocumentApp.query.get(recommendation.document_id)
-        if document.user_id != current_user.id:
-            abort(403)
-
     data = request.get_json()
 
-    if 'status' in data:
-        recommendation.status = data['status']
+    if 'status' not in data:
+        abort(400, description="Missing status field")
 
-    db.session.commit()
+    success = RecommendationService.update_recommendation_status(
+        recommendation_id,
+        current_user.id,
+        data['status']
+    )
+
+    if not success:
+        abort(403)
 
     return jsonify({'success': True})
 
