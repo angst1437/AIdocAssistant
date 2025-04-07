@@ -28,6 +28,30 @@ def create():
     return redirect(url_for('documents.create_options'))
 
 
+@documents_bp.route('/create-options')
+@login_required
+def create_options():
+    """Страница выбора способа создания документа"""
+    return render_template('documents/create_options.html', title='Создание документа')
+
+
+@documents_bp.route('/create-new', methods=['GET', 'POST'])
+@login_required
+@log_activity(level='INFO', message='New document created')
+def create_new():
+    """Создание нового документа с выбором структуры"""
+    if request.method == 'POST':
+        title = request.form.get('title', 'Untitled Document')
+        document = DocumentApp(title=title, user_id=current_user.id)
+        db.session.add(document)
+        db.session.commit()
+
+        # Перенаправляем на выбор структуры документа
+        return redirect(url_for('documents.select_structure', document_id=document.id))
+
+    return render_template('documents/create_new.html', title='Новый документ')
+
+
 @documents_bp.route('/<int:document_id>/edit')
 @login_required
 def edit(document_id):
@@ -41,9 +65,8 @@ def edit(document_id):
     if document.template_id:
         return redirect(url_for('documents.edit_structured', document_id=document_id))
 
-    # Иначе используем старый редактор
-    blocks = document.blocks.order_by(DocumentBlock.order).all()
-    return render_template('documents/editor.html', title=document.title, document=document, blocks=blocks)
+    # Если у документа нет шаблона, перенаправляем на выбор структуры
+    return redirect(url_for('documents.select_structure', document_id=document_id))
 
 
 @documents_bp.route('/<int:document_id>/update', methods=['POST'])
@@ -81,6 +104,7 @@ def delete(document_id):
     if document.user_id != current_user.id:
         abort(403)
 
+    # Удаляем документ
     db.session.delete(document)
     db.session.commit()
 
@@ -261,13 +285,6 @@ def export_document(document_id, format):
         return send_file(file_path, as_attachment=True, download_name=f"{document.title}.pdf")
     else:
         abort(400, description="Unsupported format")
-
-
-@documents_bp.route('/create-options')
-@login_required
-def create_options():
-    """Страница выбора способа создания документа"""
-    return render_template('documents/create_options.html', title='Создание документа')
 
 
 @documents_bp.route('/upload', methods=['GET', 'POST'])
@@ -520,3 +537,50 @@ def preview_document(document_id):
                            title=f"Предпросмотр - {document.title}",
                            document=document,
                            sections=sections)
+
+
+@documents_bp.route('/title-form')
+@login_required
+def title_form():
+    """Страница с формой для создания титульного листа"""
+    return render_template('documents/title_form.html', title='Создание титульного листа')
+
+
+@documents_bp.route('/generate-title', methods=['POST'])
+@login_required
+@log_activity(level='INFO', message='Title page generated')
+def generate_title():
+    """Генерация титульного листа"""
+    data = request.get_json()
+
+    # Здесь будет логика генерации титульного листа
+    # Пока просто создаем документ с заголовком
+
+    document = DocumentApp(title=data.get('work-theme', 'Новый документ'), user_id=current_user.id)
+    db.session.add(document)
+    db.session.commit()
+
+    # Создаем блок с содержимым
+    content = f"""
+    <h1 style="text-align: center;">{data.get('university-info', '')}</h1>
+    <h2 style="text-align: center;">{data.get('work-type', '')}</h2>
+    <h3 style="text-align: center;">по дисциплине "{data.get('work-subject', '')}"</h3>
+    <h2 style="text-align: center;">на тему: "{data.get('work-theme', '')}"</h2>
+    <p style="text-align: right;">Выполнил: {data.get('fullname', '')}</p>
+    <p style="text-align: right;">Группа: {data.get('group', '')}</p>
+    <p style="text-align: right;">Проверил: {data.get('educator', '')}</p>
+    <p style="text-align: center; margin-top: 50px;">{data.get('city', '')}</p>
+    """
+
+    block = DocumentBlock(
+        document_id=document.id,
+        block_type='paragraph',
+        content=content,
+        order=1
+    )
+    db.session.add(block)
+    db.session.commit()
+
+    # Перенаправляем на редактирование документа
+    return jsonify({'success': True, 'document_id': document.id})
+

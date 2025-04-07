@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-<script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+
 {% block title %}Мои документы | НИР Ассистент{% endblock %}
 
 {% block content %}
@@ -13,7 +13,7 @@
         </p>
     </div>
     <div>
-        <a href="{{ url_for('documents.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <a href="{{ url_for('documents.create_options') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             Создать документ
         </a>
     </div>
@@ -61,8 +61,8 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <a href="{{ url_for('documents.edit', document_id=document.id) }}" class="text-indigo-600 hover:text-indigo-900 mr-4">Редактировать</a>
-                                <button 
-                                    data-document-id="{{ document.id }}" 
+                                <button
+                                    data-document-id="{{ document.id }}"
                                     class="text-red-600 hover:text-red-900 delete-document-btn">
                                     Удалить
                                 </button>
@@ -83,7 +83,7 @@
     <h3 class="mt-2 text-sm font-medium text-gray-900">У вас нет документов</h3>
     <p class="mt-1 text-sm text-gray-500">Начните с создания нового документа.</p>
     <div class="mt-6">
-        <a href="{{ url_for('documents.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <a href="{{ url_for('documents.create_options') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             Создать документ
         </a>
     </div>
@@ -139,11 +139,11 @@
         const deleteModal = document.getElementById('delete-modal');
         const deleteForm = document.getElementById('delete-document-form');
         const cancelDelete = document.getElementById('cancel-delete');
-        
+
         deleteButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const documentId = this.getAttribute('data-document-id');
-                deleteForm.action = `/documents/${documentId}/delete`;
+                deleteForm.action = `/${documentId}/delete`;
                 deleteModal.classList.remove('hidden');
             });
         });

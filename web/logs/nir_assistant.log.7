@@ -1,118 +1,126 @@
-2025-04-06 21:03:18,619 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:58]
-2025-04-06 21:03:30,491 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:58]
-2025-04-06 21:12:15,013 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:58]
-2025-04-06 21:12:45,572 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:58]
-2025-04-06 21:13:26,997 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:58]
-2025-04-06 21:21:15,436 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:69]
-2025-04-06 21:25:10,852 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:69]
-2025-04-06 21:25:21,567 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:69]
-2025-04-06 21:42:59,888 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:69]
-2025-04-06 21:44:42,421 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:69]
-2025-04-06 21:47:30,894 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:69]
-2025-04-06 21:54:54,340 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:69]
-2025-04-06 22:03:08,847 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:69]
-2025-04-06 22:03:25,183 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:69]
-2025-04-06 22:04:25,380 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:69]
-2025-04-06 22:05:17,328 INFO: NIR Assistant startup [in C:\pyProj\nir-assistant-ver2\app\__init__.py:69]
-2025-04-06 22:05:56,025 ERROR: Exception on /login [POST] [in C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py:1414]
+2025-04-07 17:32:19,855 ERROR: Exception on /2/section/2/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
 Traceback (most recent call last):
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
     response = self.full_dispatch_request()
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
     rv = self.handle_user_exception(e)
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
     rv = self.dispatch_request()
          ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\app\routes\auth.py", line 31, in login
-    log_entry = LogEntry(
-                ^^^^^^^^
-NameError: name 'LogEntry' is not defined
-2025-04-06 22:07:12,156 ERROR: Exception on / [GET] [in C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py:1414]
-Traceback (most recent call last):
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\app\routes\documents.py", line 14, in index
-    return render_template('documents/index.html', title='My Documents', documents=documents)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
+  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 443, in edit_section
+    return render_template('documents/section_form.html',
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
     return _render(app, template, context)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\templating.py", line 132, in _render
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 132, in _render
     rv = template.render(context)
          ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
     self.environment.handle_exception()
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
     raise rewrite_traceback_stack(source=source)
-  File "C:\pyProj\nir-assistant-ver2\app\templates\documents\index.html", line 1, in top-level template code
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 1, in top-level template code
     {% extends "base.html" %}
-  File "C:\pyProj\nir-assistant-ver2\app\templates\base.html", line 94, in top-level template code
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\base.html", line 95, in top-level template code
     {% block content %}{% endblock %}
     ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\app\templates\documents\index.html", line 120, in block 'content'
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 75, in block 'content'
+    {% for section_item in document.template.sections %}
     ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\jinja2\utils.py", line 92, in from_obj
-    if hasattr(obj, "jinja_pass_arg"):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-jinja2.exceptions.UndefinedError: 'csrf_token' is undefined
-2025-04-06 22:07:13,897 ERROR: Exception on / [GET] [in C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py:1414]
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'app.models.DocumentApp object' has no attribute 'template'
+2025-04-07 17:32:52,494 ERROR: Exception on /2/section/2/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
 Traceback (most recent call last):
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
     response = self.full_dispatch_request()
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
     rv = self.handle_user_exception(e)
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
     rv = self.dispatch_request()
          ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\app\routes\documents.py", line 14, in index
-    return render_template('documents/index.html', title='My Documents', documents=documents)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
+  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 443, in edit_section
+    return render_template('documents/section_form.html',
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
     return _render(app, template, context)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\flask\templating.py", line 132, in _render
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 132, in _render
     rv = template.render(context)
          ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
     self.environment.handle_exception()
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
     raise rewrite_traceback_stack(source=source)
-  File "C:\pyProj\nir-assistant-ver2\app\templates\documents\index.html", line 1, in top-level template code
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 1, in top-level template code
     {% extends "base.html" %}
-  File "C:\pyProj\nir-assistant-ver2\app\templates\base.html", line 94, in top-level template code
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\base.html", line 95, in top-level template code
     {% block content %}{% endblock %}
     ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\app\templates\documents\index.html", line 120, in block 'content'
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 75, in block 'content'
+    {% for section_item in document.template.sections %}
     ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\pyProj\nir-assistant-ver2\venv\Lib\site-packages\jinja2\utils.py", line 92, in from_obj
-    if hasattr(obj, "jinja_pass_arg"):
-       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-jinja2.exceptions.UndefinedError: 'csrf_token' is undefined
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'app.models.DocumentApp object' has no attribute 'template'
+2025-04-07 17:32:56,156 ERROR: Exception on /2/section/2/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
+Traceback (most recent call last):
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 443, in edit_section
+    return render_template('documents/section_form.html',
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 132, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\base.html", line 95, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 75, in block 'content'
+    {% for section_item in document.template.sections %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'app.models.DocumentApp object' has no attribute 'template'

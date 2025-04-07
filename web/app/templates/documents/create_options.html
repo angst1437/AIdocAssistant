@@ -6,7 +6,7 @@
 <div class="max-w-4xl mx-auto py-8">
     <h1 class="text-2xl font-bold text-center mb-8">Выберите способ создания документа</h1>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <!-- Создание с нуля -->
         <div class="bg-white shadow overflow-hidden rounded-lg">
             <div class="px-4 py-5 sm:p-6">
@@ -15,13 +15,13 @@
                     <p>Создайте документ с нуля, выбрав структуру и заполнив необходимые разделы.</p>
                 </div>
                 <div class="mt-5">
-                    <a href="{{ url_for('documents.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <a href="{{ url_for('documents.create_new') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Создать новый документ
                     </a>
                 </div>
             </div>
         </div>
-        
+
         <!-- Загрузка существующего -->
         <div class="bg-white shadow overflow-hidden rounded-lg">
             <div class="px-4 py-5 sm:p-6">
@@ -32,6 +32,21 @@
                 <div class="mt-5">
                     <a href="{{ url_for('documents.upload_document') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Загрузить документ
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Создание титульного листа -->
+        <div class="bg-white shadow overflow-hidden rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Создать титульный лист</h3>
+                <div class="mt-2 max-w-xl text-sm text-gray-500">
+                    <p>Создайте титульный лист для вашего документа с помощью удобной формы.</p>
+                </div>
+                <div class="mt-5">
+                    <a href="{{ url_for('documents.title_form') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Создать титульный лист
                     </a>
                 </div>
             </div>

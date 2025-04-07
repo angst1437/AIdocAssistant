@@ -1,4 +1,4 @@
-2025-04-07 17:32:19,855 ERROR: Exception on /2/section/2/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
+2025-04-07 18:11:59,784 ERROR: Exception on /1/section/4/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
 Traceback (most recent call last):
   File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
     response = self.full_dispatch_request()
@@ -15,7 +15,49 @@ Traceback (most recent call last):
   File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 443, in edit_section
+  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 467, in edit_section
+    return render_template('documents/section_editor.html',
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 132, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_editor.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\base.html", line 95, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_editor.html", line 145, in block 'content'
+    {% for section_item in document.template.sections %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'app.models.DocumentApp object' has no attribute 'template'
+2025-04-07 18:12:10,932 ERROR: Exception on /1/section/1/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
+Traceback (most recent call last):
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 460, in edit_section
     return render_template('documents/section_form.html',
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
@@ -40,7 +82,7 @@ Traceback (most recent call last):
     return getattr(obj, attribute)
            ^^^^^^^^^^^^^^^^^^^^^^^
 jinja2.exceptions.UndefinedError: 'app.models.DocumentApp object' has no attribute 'template'
-2025-04-07 17:32:52,494 ERROR: Exception on /2/section/2/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
+2025-04-07 18:12:14,952 ERROR: Exception on /1/section/2/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
 Traceback (most recent call last):
   File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
     response = self.full_dispatch_request()
@@ -57,49 +99,7 @@ Traceback (most recent call last):
   File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
     return current_app.ensure_sync(func)(*args, **kwargs)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 443, in edit_section
-    return render_template('documents/section_form.html',
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
-    return _render(app, template, context)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 132, in _render
-    rv = template.render(context)
-         ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "C:\Users\danil\AIdocAssistant\web\app\templates\base.html", line 95, in top-level template code
-    {% block content %}{% endblock %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\web\app\templates\documents\section_form.html", line 75, in block 'content'
-    {% for section_item in document.template.sections %}
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\jinja2\environment.py", line 490, in getattr
-    return getattr(obj, attribute)
-           ^^^^^^^^^^^^^^^^^^^^^^^
-jinja2.exceptions.UndefinedError: 'app.models.DocumentApp object' has no attribute 'template'
-2025-04-07 17:32:56,156 ERROR: Exception on /2/section/2/edit [GET] [in C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py:1414]
-Traceback (most recent call last):
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
-    response = self.full_dispatch_request()
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
-    rv = self.dispatch_request()
-         ^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
-    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
-    return current_app.ensure_sync(func)(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 443, in edit_section
+  File "C:\Users\danil\AIdocAssistant\web\app\routes\documents.py", line 460, in edit_section
     return render_template('documents/section_form.html',
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "C:\Users\danil\AIdocAssistant\venv\Lib\site-packages\flask\templating.py", line 151, in render_template
