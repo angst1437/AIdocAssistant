@@ -54,9 +54,11 @@ def create_app(config_class=None):
         from .routes.ai import ai_bp
         from .routes.feedback import feedback_bp
         from .routes.admin import admin_bp
+        from .routes.main import main_bp
 
+        app.register_blueprint(main_bp)
         app.register_blueprint(auth_bp)
-        app.register_blueprint(documents_bp)
+        app.register_blueprint(documents_bp, url_prefix='/documents')
         app.register_blueprint(ai_bp)
         app.register_blueprint(feedback_bp)
         app.register_blueprint(admin_bp)

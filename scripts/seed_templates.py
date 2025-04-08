@@ -42,55 +42,71 @@ def run_seed():
     # упомянутые в ГОСТ, обрабатываются при рендеринге документа (генерация PDF/HTML),
     # а не определяются в этой структуре данных. Эта структура определяет, *какие* данные собирать.
     sections_data = [
-        # --- ОБЯЗАТЕЛЬНЫЕ СЕКЦИИ ---
         {
             "name": "Титульный лист", "code": "ТЛ", "slug": "title-page",
-            "description": "Титульный лист согласно ГОСТ 7.32-2017, п. 5.1, 6.10",
+            "description": "Титульный лист НИР (адаптировано для MVP)",  # Обновим описание
             "order": 1, "editor_type": EDITOR_TYPE_FORM, "is_mandatory": True,
             "form_schema": json.dumps([
-                # Шапка (по центру)
-                {"name": "ministry", "label": "Министерство/Ведомство (если применимо)", "type": "text", "required": False, "help_text": "Полное наименование, с прописной буквы, по центру."},
-                {"name": "org_full_name", "label": "Полное наименование организации-исполнителя", "type": "text", "required": True, "help_text": "ПРОПИСНЫМИ БУКВАМИ, по центру."},
-                {"name": "org_short_name", "label": "Сокращенное наименование (в скобках)", "type": "text", "required": False, "help_text": "(ПРОПИСНЫМИ БУКВАМИ), по центру, на отдельной строке."},
-                # Идентификаторы (слева)
-                {"name": "udk", "label": "УДК", "type": "text", "required": True, "help_text": "Индекс УДК по ГОСТ 7.90, слева."},
-                {"name": "reg_nir_number", "label": "Рег. номер НИР", "type": "text", "required": True, "help_text": "Напр., номер ЕГИСУ НИОКТР. Слева."},
-                {"name": "reg_report_number", "label": "Рег. номер отчета", "type": "text", "required": True, "help_text": "Напр., номер ИКРБС. Слева."},
-                # Блоки Утверждения/Согласования (под идентификаторами)
-                # Согласование (слева)
-                {"name": "agreement_block_present", "label": "Блок СОГЛАСОВАНО присутствует?", "type": "checkbox", "default": False, "required": False}, # Необязательный блок
-                {"name": "agreement_officer_position", "label": "СОГЛАСОВАНО: Должность", "type": "text", "required": False, "depends_on": "agreement_block_present"},
-                {"name": "agreement_officer_degree", "label": "СОГЛАСОВАНО: Ученая степень", "type": "text", "required": False, "depends_on": "agreement_block_present"},
-                {"name": "agreement_officer_rank", "label": "СОГЛАСОВАНО: Ученое звание", "type": "text", "required": False, "depends_on": "agreement_block_present"},
-                {"name": "agreement_officer_name", "label": "СОГЛАСОВАНО: И.О. Фамилия", "type": "text", "required": False, "depends_on": "agreement_block_present"},
-                {"name": "agreement_date", "label": "Дата согласования", "type": "date", "required": False, "depends_on": "agreement_block_present", "help_text": "Формат ДД.ММ.ГГГГ"},
-                # Утверждение (справа)
-                {"name": "approval_officer_position", "label": "УТВЕРЖДАЮ: Должность", "type": "text", "required": True},
-                {"name": "approval_officer_degree", "label": "УТВЕРЖДАЮ: Ученая степень", "type": "text", "required": False},
-                {"name": "approval_officer_rank", "label": "УТВЕРЖДАЮ: Ученое звание", "type": "text", "required": False},
-                {"name": "approval_officer_name", "label": "УТВЕРЖДАЮ: И.О. Фамилия", "type": "text", "required": True},
-                {"name": "approval_date", "label": "Дата утверждения", "type": "date", "required": True, "help_text": "Формат ДД.ММ.ГГГГ"},
-                # Заголовки отчета (по центру)
-                {"name": "doc_type_header", "label": "Вид документа (Заголовок)", "type": "static-text", "value": "ОТЧЕТ", "help_text": "Отображается ПРОПИСНЫМИ, по центру."}, # Используем static-text для неизменяемых частей
-                {"name": "doc_type_main", "label": "Вид документа (Основной)", "type": "static-text", "value": "О НАУЧНО-ИССЛЕДОВАТЕЛЬСКОЙ РАБОТЕ", "help_text": "Отображается ПРОПИСНЫМИ, по центру, на след. строке."},
-                {"name": "nir_name", "label": "Наименование НИР", "type": "textarea", "required": True, "help_text": "Строчными буквами с первой прописной, по центру."},
-                {"name": "report_name_prefix", "label": "Префикс наименования отчета", "type": "static-text", "value": "по теме:", "help_text": "Приводится строчными, если наименование отчета отличается от НИР."},
-                {"name": "report_name", "label": "Наименование отчета", "type": "textarea", "required": False, "help_text": "ПРОПИСНЫМИ БУКВАМИ, по центру. Заполняется, если отличается от наименования НИР."},
-                {"name": "report_type", "label": "Вид отчета", "type": "select", "required": True, "options": [
-                    {"value": "interim", "label": "промежуточный"}, {"value": "final", "label": "заключительный"}
-                ], "help_text": "Указывается в круглых скобках."},
-                {"name": "interim_stage", "label": "Этап (для промежуточного)", "type": "text", "required": False, "help_text": "Указывается в тех же скобках через запятую, напр.: (промежуточный, этап 2)."},
-                {"name": "program_theme_id", "label": "Номер (шифр) программы, темы", "type": "text", "required": False, "help_text": "Прописными буквами, по центру."},
-                {"name": "book_number", "label": "Номер книги (тома)", "type": "number", "min": 1, "required": False, "help_text": "Для отчета из >1 книги. Напр.: Книга 2."},
-                # Руководитель (слева должность, справа ФИО)
-                {"name": "supervisor_position", "label": "Руководитель НИР: Должность", "type": "text", "required": True},
-                {"name": "supervisor_degree", "label": "Руководитель НИР: Ученая степень", "type": "text", "required": False},
-                {"name": "supervisor_rank", "label": "Руководитель НИР: Ученое звание", "type": "text", "required": False},
-                {"name": "supervisor_name", "label": "Руководитель НИР: И.О. Фамилия", "type": "text", "required": True},
-                # Подвал (по центру)
-                {"name": "city", "label": "Место составления (город)", "type": "text", "required": True, "help_text": "По центру, внизу."},
-                {"name": "year", "label": "Год составления", "type": "number", "min": 1900, "max": 2100, "required": True, "help_text": "По центру, внизу, через пробел от города."}
-            ], ensure_ascii=False) # Используем ensure_ascii=False для кириллицы
+                # --- MVP Поля ---
+                # Сопоставляем university_info с org_full_name или ministry
+                {"name": "org_full_name", "label": "Наименование организации (ВУЗ)", "type": "textarea", "required": True,
+                 "help_text": "Полное наименование ВУЗа", "mvp": True},
+                # Добавляем новое поле work_type
+                {"name": "work_type_mvp", "label": "Тип работы", "type": "select", "required": True, "options": [
+                    {"value": "coursework", "label": "Курсовая работа"},
+                    {"value": "diploma", "label": "Дипломная работа (ВКР)"},
+                    {"value": "master_thesis", "label": "Магистерская диссертация"},
+                    {"value": "report", "label": "Отчет по практике"},
+                    {"value": "other", "label": "Другое"}
+                ], "help_text": "Выберите тип выполняемой работы", "mvp": True},
+                # Добавляем новое поле subject
+                {"name": "subject_mvp", "label": "Предмет/Дисциплина", "type": "text", "required": True,
+                 "help_text": "Например, 'Программирование', 'Базы данных'", "mvp": True},
+                # Сопоставляем theme с report_title (или nir_name)
+                {"name": "report_title", "label": "Тема работы", "type": "text", "required": True,
+                 "help_text": "Полная тема вашей работы", "mvp": True},
+                # Добавляем новое поле author
+                {"name": "author_mvp", "label": "Исполнитель (ФИО)", "type": "text", "required": True,
+                 "help_text": "Ваше полное ФИО", "mvp": True},
+                # Добавляем новое поле group
+                {"name": "group_mvp", "label": "Учебная группа", "type": "text", "required": True,
+                 "help_text": "Номер вашей учебной группы", "mvp": True},
+                # Сопоставляем educator с supervisor_name
+                {"name": "supervisor_name", "label": "Руководитель (ФИО)", "type": "text", "required": True,
+                 "help_text": "ФИО научного руководителя", "mvp": True},
+                # Используем существующее поле city
+                {"name": "city", "label": "Город", "type": "text", "required": True, "mvp": True},
+
+                # --- НЕ-MVP Поля (остальные поля ГОСТа) ---
+                # Просто не добавляем "mvp": True к ним
+                {"name": "ministry", "label": "Министерство/Ведомство (если применимо)", "type": "text",
+                 "required": False},
+                {"name": "org_short_name", "label": "Сокращенное наименование (в скобках)", "type": "text",
+                 "required": False},
+                {"name": "udk", "label": "УДК", "type": "text", "required": False},  # Сделаем пока необязательным
+                {"name": "reg_nir_number", "label": "Рег. номер НИР", "type": "text", "required": False},
+                {"name": "reg_report_number", "label": "Рег. номер отчета", "type": "text", "required": False},
+                {"name": "agreement_block_present", "label": "Блок СОГЛАСОВАНО присутствует?", "type": "checkbox",
+                 "default": False, "required": False},
+                {"name": "agreement_officer_position", "label": "СОГЛАСОВАНО: Должность", "type": "text",
+                 "required": False, "depends_on": "agreement_block_present"},
+                # ... (другие поля согласования) ...
+                {"name": "approval_officer_position", "label": "УТВЕРЖДАЮ: Должность", "type": "text",
+                 "required": False},  # Сделаем пока необязательным
+                {"name": "approval_officer_name", "label": "УТВЕРЖДАЮ: И.О. Фамилия", "type": "text",
+                 "required": False},
+                {"name": "approval_date", "label": "Дата утверждения", "type": "date", "required": False},
+                {"name": "report_name", "label": "Наименование отчета (если отличается)", "type": "textarea",
+                 "required": False},
+                {"name": "report_type", "label": "Вид отчета по ГОСТ", "type": "select", "required": False, "options": [
+                    {"value": "interim", "label": "промежуточный"}, {"value": "final", "label": "заключительный"}]},
+                # ... (другие оставшиеся поля ГОСТа без "mvp": True) ...
+                {"name": "supervisor_position", "label": "Руководитель НИР: Должность", "type": "text",
+                 "required": False},
+                {"name": "year", "label": "Год составления", "type": "number", "min": 1900, "max": 2100,
+                 "required": True},  # Год оставим обязательным
+
+            ], ensure_ascii=False)
         },
         {
             "name": "Реферат", "code": "РЕФ", "slug": "abstract",

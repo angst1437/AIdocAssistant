@@ -274,7 +274,8 @@ def structure(document_id):
                            title=f"Структура - {document.title}",
                            document=document,
                            template_sections=template_sections,
-                           existing_sections=existing_sections)
+                           existing_sections=existing_sections,
+                           update_title_url=url_for('documents.update', document_id=document.id))
 
 
 @documents_bp.route('/<int:document_id>/edit/<string:section_slug>', methods=['GET'])

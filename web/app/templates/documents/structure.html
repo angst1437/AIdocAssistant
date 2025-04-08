@@ -161,37 +161,48 @@
                 showToast('Название документа не может быть пустым', 'error');
                 return;
             }
+            const updateUrl = '{{ update_title_url }}'; // Получаем URL, сгенерированный url_for в Python
+        if (!updateUrl) { // Добавим проверку на всякий случай
+            console.error("Ошибка: Переменная update_title_url не передана в шаблон!");
+            showToast('Критическая ошибка конфигурации URL', 'error');
+            return;
+        }
+
+        fetch(updateUrl, { // Используем переменную updateUrl
+             method: 'POST',
+             headers: {
+                 'Content-Type': 'application/json',
+                 'X-CSRFToken': '{{ csrf_token() }}' // Оставляем CSRF
+             },
+             body: JSON.stringify({
+                 title: newTitle // Оставляем тело запроса
+             })
+         })
+         .then(response => response.json()) // Оставляем обработку ответа
+         .then(data => {
+             if (data.success) {
+                 // Обновляем заголовок на странице
+                 document.querySelector('h1').textContent = newTitle;
+                 // Правильно обновляем title страницы
+                 const baseTitle = "{{ title }}".substring(0, "{{ title }}".indexOf(' - ') + 3); // Получаем "Структура - "
+                 document.title = baseTitle + newTitle;
+
+
+                 // Скрываем модальное окно
+                 renameModal.classList.add('hidden');
+
+                 // Показываем уведомление
+                 showToast('Название документа успешно обновлено');
+             } else {
+                 showToast(data.message || 'Ошибка при обновлении названия документа', 'error'); // Показываем сообщение с сервера, если есть
+             }
+         })
+         .catch(error => { // Оставляем обработку ошибок сети/парсинга
+             console.error('Error updating title:', error);
+             showToast('Сетевая ошибка или ошибка ответа сервера', 'error');
+         });
             
-            fetch('/{{ document.id }}/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    title: newTitle
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Обновляем заголовок на странице
-                    document.querySelector('h1').textContent = newTitle;
-                    document.title = newTitle + ' - Структура';
-                    
-                    // Скрываем модальное окно
-                    renameModal.classList.add('hidden');
-                    
-                    // Показываем уведомление
-                    showToast('Название документа успешно обновлено');
-                } else {
-                    showToast('Ошибка при обновлении названия документа', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Ошибка при обновлении названия документа', 'error');
-            });
+
         });
         
         // Функция для отображения уведомления

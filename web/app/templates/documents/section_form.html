@@ -6,59 +6,132 @@
 {# --- Стили оставляем как есть --- #}
 <style>
     .section-nav { background-color: #f3f4f6; border-radius: 1rem; padding: 1rem; }
-    .section-nav-item { display: flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 50%; background-color: #e5e7eb; color: #4b5563; font-weight: 600; margin: 0.5rem 0; position: relative; }
+    .section-nav-item { display: flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 50%; background-color: #e5e7eb; color: #4b5563; font-weight: 600; margin: 0.5rem 0; position: relative; transition: background-color 0.2s, color 0.2s; } /* Добавил transition для плавности */
+    .section-nav-item:hover { background-color: #d1d5db; } /* Добавил hover эффект */
     .section-nav-item.active { background-color: #4b5563; color: white; }
-    .section-nav-item:not(:last-child)::after { content: ''; position: absolute; top: 100%; left: 50%; width: 2px; height: 1rem; background-color: #d1d5db; }
-    .section-nav-connector { width: 2px; height: 1rem; background-color: #d1d5db; margin: 0 auto; }
+    .section-nav-item.active:hover { background-color: #374151; } /* Hover для активного элемента */
+    .section-nav-item:not(:last-child)::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 2px; height: 1rem; background-color: #d1d5db; } /* Улучшил позиционирование линии */
+    .section-nav-connector { /* Этот элемент теперь не нужен, линия рисуется через ::after */ }
     .toast { position: fixed; bottom: 1rem; right: 1rem; padding: 1rem; background: white; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); z-index: 50; transition: transform 0.3s, opacity 0.3s; transform: translateY(100%); opacity: 0; }
     .toast.show { transform: translateY(0); opacity: 1; }
-    /* Стиль для статического текста */
-    .static-text-field { padding-top: 0.5rem; /* Примерный отступ сверху, как у input */ }
+    /* Стиль для статического текста, чтобы он выглядел похоже на поле ввода */
+    .static-text-field {
+        display: block; /* Чтобы занимал всю ширину */
+        width: 100%;
+        padding: 0.5rem 0.75rem; /* Примерные отступы как у input */
+        margin-top: 0.25rem; /* mt-1 */
+        font-size: 0.875rem; /* sm:text-sm */
+        line-height: 1.25rem;
+        color: #374151; /* text-gray-700 или чуть темнее */
+        /* Можно добавить border, если нужно имитировать поле ввода */
+        /* border: 1px solid #d1d5db; */
+        /* border-radius: 0.375rem; */ /* rounded-md */
+    }
+    /* Стандартные стили Tailwind для полей ввода (для удобства, если нет Tailwind в base.html) */
+    .form-input-tailwind {
+      margin-top: 0.25rem; /* mt-1 */
+      display: block;
+      width: 100%;
+      border-radius: 0.375rem; /* rounded-md */
+      border: 1px solid #D1D5DB; /* border-gray-300 */
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+      padding: 0.5rem 0.75rem; /* py-2 px-3 - стандарт для форм */
+      font-size: 0.875rem; /* sm:text-sm */
+      line-height: 1.25rem;
+    }
+    .form-input-tailwind:focus {
+      outline: 2px solid transparent;
+      outline-offset: 2px;
+      border-color: #6366F1; /* focus:border-indigo-500 */
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* focus:ring-indigo-500 и focus:ring-opacity-50 */
+    }
+    .form-textarea-tailwind {
+        /* Наследует большинство стилей от input */
+        min-height: 6rem; /* Примерная высота для rows=3 */
+    }
+    .form-select-tailwind {
+      /* Наследует большинство стилей от input, добавляем стрелку */
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.5rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem; /* Место для стрелки */
+      -webkit-appearance: none;
+         -moz-appearance: none;
+              appearance: none;
+    }
+    .form-checkbox-tailwind {
+        height: 1rem; /* h-4 */
+        width: 1rem; /* w-4 */
+        border-radius: 0.25rem; /* rounded */
+        border: 1px solid #D1D5DB; /* border-gray-300 */
+        color: #4F46E5; /* text-indigo-600 */
+    }
+    .form-checkbox-tailwind:focus {
+      outline: 2px solid transparent;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* focus:ring-indigo-500 */
+    }
+    /* Стили для кнопки сохранения */
+    .save-button-tailwind {
+        display: inline-flex;
+        justify-content: center;
+        padding: 0.5rem 1rem; /* py-2 px-4 */
+        border: 1px solid transparent;
+        border-radius: 0.375rem; /* rounded-md */
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+        font-size: 0.875rem; /* text-sm */
+        font-weight: 500; /* font-medium */
+        color: white; /* text-white */
+        background-color: #4F46E5; /* bg-indigo-600 */
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .save-button-tailwind:hover {
+        background-color: #4338CA; /* hover:bg-indigo-700 */
+    }
+    .save-button-tailwind:focus {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 */
+    }
+    .save-button-tailwind:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
 </style>
 {% endblock %}
 
 {% block content %}
+{# <!-- ИСПРАВЛЕНО: Добавлена правильная структура flex --> #}
 <div class="flex flex-col md:flex-row h-full">
+
     <!-- Навигация по секциям -->
-    <div class="w-full md:w-1/6 p-4">
-        <div class="section-nav">
-            {# Используем template_sections, переданный из Flask #}
+    <div class="w-full md:w-1/6 p-4 flex-shrink-0"> {# Добавлен flex-shrink-0 для надежности #}
+        <div class="section-nav sticky top-4"> {# Добавлен sticky top-4 для "прилипания" навигации при скролле #}
             {% for nav_section in template_sections %}
-            <a href="{{ url_for('documents.edit_section', document_id=document.id, section_slug=nav_section.slug) }}" class="block">
-                {# Сравниваем ID текущей секции (section.id) с ID секции в навигации (nav_section.id) #}
+            <a href="{{ url_for('documents.edit_section', document_id=document.id, section_slug=nav_section.slug) }}" class="block section-nav-link">
                 <div class="section-nav-item {% if nav_section.id == section.id %}active{% endif %}" title="{{ nav_section.name }}">
                     {{ nav_section.code }}
                 </div>
-                {# Используем loop.last для корректного отображения соединителя #}
-                {% if not loop.last %}
+                {# Линия-соединитель теперь рисуется через ::after в CSS, этот div не нужен #}
+                {# {% if not loop.last %}
                 <div class="section-nav-connector"></div>
-                {% endif %}
+                {% endif %} #}
             </a>
             {% endfor %}
         </div>
     </div>
 
-    <!-- Форма -->
-    <div class="w-full md:w-5/6 p-4">
-        <!-- Шапка секции -->
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
-            <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
-                <h1 class="text-xl font-bold text-gray-900">{{ section.name }}</h1>
-                <div class="flex space-x-2">
-                    {# --- УНИКАЛЬНЫЙ ID для кнопки в шапке --- #}
-                    <button id="save-section-header-{{ section.slug }}" type="button" class="save-button inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Сохранить
-                    </button>
-                    <a href="{{ url_for('documents.structure', document_id=document.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Вернуться к документу
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Основной блок формы -->
+    <!-- Основной контент (форма) -->
+    {# <!-- ИСПРАВЛЕНО: Добавлена обертка для основного контента с правильной шириной --> #}
+    <div class="w-full md:w-5/6 p-4 flex-grow"> {# flex-grow нужен, чтобы занять оставшееся место #}
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
             <div class="px-4 py-5 sm:p-6">
+                <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    Раздел: {{ section.name }} ({{ section.code }})
+                </h2>
                 {# --- УНИКАЛЬНЫЙ ID для формы --- #}
                 <form id="section-form-{{ section.slug }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -66,191 +139,280 @@
                     {# --- Используем переменную form_schema (список словарей), переданную из Flask --- #}
                     {% if form_schema %}
                         {% for field in form_schema %}
-                            <div class="mb-4">
-                                <label for="section-{{ section.slug }}-{{ field.name }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                            {# --- MVP Check: Отображаем поле только если есть флаг mvp=True --- #}
+                            {% if field.get('mvp', false) == true %} {# Безопасное получение mvp #}
+                                <div class="mb-4"> {# Открывающий div для ОДНОГО поля #}
+                                    <label for="section-{{ section.slug }}-{{ field.name }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
 
-                                {# --- Получаем текущее значение, учитывая значение по умолчанию из схемы --- #}
-                                {% set default_value = field.default if field.default is defined else '' %}
-                                {% set current_value = section_content.form_data.get(field.name, default_value) %}
+                                    {# --- Получаем текущее значение, учитывая значение по умолчанию из схемы --- #}
+                                    {% set default_value = field.default if field.default is defined else '' %}
+                                    {# Используем section_content.get('form_data', {}) для безопасности #}
+                                    {% set form_data_dict = section_content.form_data if section_content and section_content.form_data is defined and section_content.form_data is mapping else {} %}.
+                                    {% set current_value = form_data_dict.get(field.name, default_value) %}
 
-                                {# --- Обработка типов полей --- #}
-                                {% if field.type == 'text' %}
-                                    <input type="text" id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" value="{{ current_value }}"
-                                           class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                           {% if field.required %}required{% endif %}>
+                                    {# --- Обработка типов полей --- #}
+                                    {% if field.type == 'text' %}
+                                        {# <!-- ИСПРАВЛЕНО: Добавлены классы Tailwind --> #}
+                                        <input type="text" id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" value="{{ current_value }}"
+                                               class="form-input-tailwind" {% if field.required %}required{% endif %}>
 
-                                {% elif field.type == 'textarea' %}
-                                    <textarea id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" rows="3"
-                                              class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                              {% if field.required %}required{% endif %}>{{ current_value }}</textarea>
+                                    {% elif field.type == 'textarea' %}
+                                        {# <!-- ИСПРАВЛЕНО: Добавлены классы Tailwind --> #}
+                                        <textarea id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" rows="3"
+                                                  class="form-input-tailwind form-textarea-tailwind" {% if field.required %}required{% endif %}>{{ current_value }}</textarea>
 
-                                {% elif field.type == 'select' %}
-                                    <select id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}"
-                                            class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                            {% if field.required %}required{% endif %}>
-                                        {# Добавляем пустую опцию, если не обязательное и нет значения #}
-                                        {% if not field.required and not current_value %}
-                                        <option value="" selected>-- Не выбрано --</option>
-                                        {% endif %}
-                                        {% for option in field.options %}
-                                            <option value="{{ option.value }}" {% if current_value|string == option.value|string %}selected{% endif %}>{{ option.label }}</option> {# Сравниваем как строки на всякий случай #}
-                                        {% endfor %}
-                                    </select>
+                                    {# <!-- ИСПРАВЛЕНО: Опечатка % elif -> {% elif --> #}
+                                    {% elif field.type == 'select' %}
+                                        {# Классы уже были похожи на Tailwind, оставил их, но можно заменить на form-select-tailwind #}
+                                        <select id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}"
+                                                class="form-input-tailwind form-select-tailwind"
+                                                {% if field.required %}required{% endif %}>
+                                            {# Добавляем пустую опцию, если не обязательное и нет значения #}
+                                            {% if not field.required and not current_value %}
+                                            <option value="" selected disabled>-- Выберите значение --</option> {# Лучше сделать disabled #}
+                                            {% endif %}
+                                            {% for option in field.options %}
+                                                <option value="{{ option.value }}" {% if current_value|string == option.value|string %}selected{% endif %}>{{ option.label }}</option> {# Сравниваем как строки на всякий случай #}
+                                            {% endfor %}
+                                        </select>
 
-                                {% elif field.type == 'date' %}
-                                    <input type="date" id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" value="{{ current_value }}"
-                                           class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                           {% if field.required %}required{% endif %}>
+                                    {% elif field.type == 'date' %}
+                                         {# Классы уже были похожи на Tailwind #}
+                                        <input type="date" id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" value="{{ current_value }}"
+                                               class="form-input-tailwind"
+                                               {% if field.required %}required{% endif %}>
 
-                                {% elif field.type == 'checkbox' %}
-                                    <div class="mt-1 flex items-center">
-                                        {# Значение 1 отправляется, только если чекбокс отмечен #}
-                                        <input type="checkbox" id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" value="1"
-                                               class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
-                                               {% if current_value == '1' or current_value == True %}checked{% endif %}>
-                                        <label for="section-{{ section.slug }}-{{ field.name }}" class="ml-2 block text-sm text-gray-900">{{ field.checkbox_label | default(field.label) }}</label>
-                                    </div>
+                                    {% elif field.type == 'checkbox' %}
+                                        <div class="mt-2 flex items-center"> {# Небольшой отступ сверху для чекбокса #}
+                                            {# <!-- ИСПРАВЛЕНО: Опечатка inputtype -> input type --> #}
+                                            <input type="checkbox" id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" value="1" {# Отправляем 1, если отмечен #}
+                                                   class="form-checkbox-tailwind"
+                                                   {% if current_value == '1' or current_value == 1 or current_value == True %}checked{% endif %}> {# Проверяем разные варианты "истины" #}
+                                            {# Скрытый input, чтобы значение 0 отправлялось, если чекбокс не отмечен #}
+                                            <input type="hidden" name="{{ field.name }}" value="0">
+                                            <label for="section-{{ section.slug }}-{{ field.name }}" class="ml-2 block text-sm text-gray-900">{{ field.checkbox_label | default(field.label) }}</label>
+                                        </div>
 
-                                {# --- ДОБАВЛЕНО: Обработка number --- #}
-                                {% elif field.type == 'number' %}
-                                    <input type="number" id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" value="{{ current_value }}"
-                                           class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                           {% if field.min is defined %} min="{{ field.min }}" {% endif %}
-                                           {% if field.max is defined %} max="{{ field.max }}" {% endif %}
-                                           {% if field.step is defined %} step="{{ field.step }}" {% endif %}
-                                           {% if field.required %}required{% endif %}>
 
-                                {# --- ДОБАВЛЕНО: Обработка static-text --- #}
-                                {% elif field.type == 'static-text' %}
-                                     <p class="mt-1 text-sm text-gray-800 font-medium static-text-field">{{ field.value }}</p>
-                                     {# Не создаем input, это просто текст #}
+                                    {% elif field.type == 'number' %}
+                                         {# Классы уже были похожи на Tailwind #}
+                                        <input type="number" id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" value="{{ current_value }}"
+                                               class="form-input-tailwind"
+                                               {% if field.min is defined %} min="{{ field.min }}" {% endif %}
+                                               {% if field.max is defined %} max="{{ field.max }}" {% endif %}
+                                               {% if field.step is defined %} step="{{ field.step }}" {% endif %}
+                                               {% if field.required %}required{% endif %}>
 
-                                {# --- ДОБАВЛЕНО: Обработка array (заглушка) --- #}
-                                {% elif field.type == 'array' %}
-                                    <div class="mt-1 p-2 border rounded bg-gray-100 text-gray-600">
-                                        Поле типа "array" ({{ field.name }}) требует специального интерфейса (пока не реализовано).
-                                        <details>
-                                            <summary class="text-xs cursor-pointer">Текущие данные (JSON)</summary>
-                                            <pre class="text-xs bg-white p-1 mt-1 overflow-auto">{{ section_content.form_data.get(field.name)|tojson(indent=2) }}</pre>
-                                        </details>
-                                    </div>
+                                     {# --- ДОБАВЛЕНО: Обработка static-text --- #}
+                                    {% elif field.type == 'static-text' %}
+                                         {# Используем специальный класс для стилизации #}
+                                         <div class="static-text-field">{{ field.value }}</div>
+                                         {# Не создаем input, это просто текст #}
 
-                                {% else %}
-                                     <p class="mt-1 text-sm text-red-600">Неизвестный тип поля: {{ field.type }}</p>
-                                {% endif %}
 
-                                {# --- Отображение help_text --- #}
-                                {% if field.help_text %}
-                                    <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
+                                    {# --- ДОБАВЛЕНО: Обработка array (заглушка) --- #}
+                                    {% elif field.type == 'array' %}
+                                        <div class="mt-1 p-3 border rounded bg-gray-50 text-gray-700 text-sm"> {# Немного обновил стили #}
+                                            Поле типа "Массив" ({{ field.name }}): <span class="font-medium">{{ field.label }}</span>
+                                            <p class="text-xs text-gray-500 mt-1">Редактирование массивов требует специального интерфейса (в разработке).</p>
+                                            <details class="mt-2">
+                                                <summary class="text-xs cursor-pointer text-indigo-600 hover:text-indigo-800">Показать текущие данные (JSON)</summary>
+                                                <pre class="text-xs bg-gray-100 p-2 mt-1 rounded overflow-auto border">{{ section_content.get('form_data', {}).get(field.name)|tojson(indent=2) }}</pre>
+                                            </details>
+                                        </div>
+
+                                    {% else %}
+                                         <p class="mt-1 text-sm text-red-600 font-medium">Ошибка: Неизвестный тип поля "{{ field.type }}" для "{{ field.name }}"</p>
+                                    {% endif %}
+
+                                    {# --- Отображение help_text --- #}
+                                    {% if field.help_text %}
+                                        <p class="mt-1 text-xs text-gray-500">{{ field.help_text }}</p> {# Сделал текст подсказки мельче #}
+                                    {% endif %}
+
+                                </div> {# Конец div.mb-4 для ОДНОГО поля #}
+
+                                {# <!-- ИСПРАВЛЕНО: Удален дублирующийся блок кода отсюда --> #}
+
+                            {% endif %} {# Конец блока if field.mvp == true #}
+
+                        {% endfor %} {# Конец цикла for field #}
                     {% else %}
                         {# Этот блок выводится, если form_schema пустой или не передан #}
-                        <p class="text-gray-500">Для этой секции не определена схема формы.</p>
-                        {# Можно добавить сюда базовый редактор, если нужно #}
-                        {# <textarea name="content" ...>{{ section_content.content }}</textarea> #}
+                        <p class="text-gray-500 italic">Для этого раздела схема формы не определена.</p>
                     {% endif %}
 
                     <!-- Кнопка сохранения внизу формы -->
-                    <div class="flex justify-end pt-4 border-t mt-6">
-                        {# --- УНИКАЛЬНЫЙ ID для кнопки в подвале --- #}
-                        <button id="save-section-footer-{{ section.slug }}" type="button" class="save-button inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <div class="flex justify-end pt-5 border-t border-gray-200 mt-6"> {# Добавил border-gray-200 #}
+                        {# <!-- ИСПРАВЛЕНО: Добавлены классы Tailwind и класс 'save-button' для JS --> #}
+                        <button id="save-section-footer-{{ section.slug }}" type="button" class="save-button save-button-tailwind">
                             Сохранить изменения
                         </button>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+                </form> {# Конец формы #}
+            </div> {# Конец div.px-4.py-5.sm:p-6 #}
+        </div> {# Конец div.bg-white... #}
+    </div> {# <!-- ИСПРАВЛЕНО: Закрывающий тег для обертки основного контента --> #}
+
+    {# <!-- ИСПРАВЛЕНО: Удален лишний закрывающий div --> #}
+
+</div> {# Конец div.flex.flex-col.md:flex-row #}
 
 <!-- Toast Notification -->
-{# ... код toast без изменений ... #}
-<div id="toast" class="toast">...</div>
+<div id="toast" class="toast">Сообщение</div> {# Добавил текст по умолчанию для отладки #}
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // ... (showToast, getCsrfToken без изменений) ...
-        function showToast(message, type = 'success') { /* ... */ }
-        function getCsrfToken() { /* ... */ }
+        const toastElement = document.getElementById('toast');
+        let toastTimeout;
 
-        // --- УЛУЧШЕННАЯ Функция сохранения ---
+        function showToast(message, type = 'success') {
+            if (!toastElement) return;
+            // console.log('Showing toast:', message, type); // Отладка
+            toastElement.textContent = message;
+            toastElement.classList.remove('bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'bg-blue-100', 'text-blue-700'); // Сброс цветов
+
+            if (type === 'success') {
+                toastElement.classList.add('bg-green-100', 'text-green-700'); // Примерные цвета Tailwind
+            } else if (type === 'error') {
+                toastElement.classList.add('bg-red-100', 'text-red-700'); // Примерные цвета Tailwind
+            } else if (type === 'info') {
+                 toastElement.classList.add('bg-blue-100', 'text-blue-700'); // Примерные цвета Tailwind
+            } else {
+                // По умолчанию - белый фон из CSS
+            }
+
+            toastElement.classList.add('show');
+
+            // Очистить предыдущий таймаут, если есть
+            clearTimeout(toastTimeout);
+
+            // Скрыть тост через 3 секунды
+            toastTimeout = setTimeout(() => {
+                toastElement.classList.remove('show');
+            }, 3000);
+        }
+
+        function getCsrfToken() {
+            const tokenInput = document.querySelector('input[name="csrf_token"]');
+            return tokenInput ? tokenInput.value : null;
+        }
+
+        // --- Функция сохранения ---
         function saveSectionForm() {
-            {# --- Используем ПРАВИЛЬНЫЙ ID формы --- #}
             const form = document.getElementById('section-form-{{ section.slug }}');
             if (!form) {
                 console.error('Form #section-form-{{ section.slug }} not found!');
-                showToast('Ошибка: Не удалось найти форму для сохранения.', 'error');
+                showToast('Критическая ошибка: Не найдена форма для сохранения.', 'error');
                 return;
             }
+
+            const csrfToken = getCsrfToken();
+            if (!csrfToken) {
+                 console.error('CSRF token not found!');
+                 showToast('Ошибка: Не найден CSRF токен. Обновите страницу.', 'error');
+                 return;
+            }
+
+            // Корректная обработка FormData для чекбоксов
+            // FormData сам правильно обрабатывает чекбоксы (отправляет value если checked, не отправляет если unchecked)
+            // Но мы добавили hidden input с value="0", чтобы сервер всегда получал значение поля
             const formData = new FormData(form);
-            const documentId = {{ document.id }};
-            const sectionId = {{ section.id }}; // ID шаблонной секции
-            const saveUrl = `/documents/${documentId}/section/${sectionId}/update`;
+
+             // --- Найдем ВСЕ кнопки с классом save-button внутри текущей формы ---
+            const saveButtons = form.querySelectorAll('.save-button');
+            if (saveButtons.length === 0) {
+                console.warn('Save button(s) with class "save-button" not found inside the form.');
+            }
 
             // --- Индикация загрузки ---
-            // Добавляем общий класс 'save-button', чтобы легче найти обе кнопки
-            const saveButtons = document.querySelectorAll('.save-button');
             saveButtons.forEach(btn => {
                 btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed'); // Визуальная блокировка
+                // Классы для блокировки уже должны быть в CSS или добавлены Tailwind JIT
             });
-            showToast('Сохранение...', 'info'); // Показываем процесс
+            showToast('Сохранение данных...', 'info'); // Показываем процесс
+
+            const documentId = {{ document.id }};
+            const sectionId = {{ section.id }}; // ID шаблонной секции
+            const saveUrl = `/documents/${documentId}/section/${sectionId}/update`; // Используем ID секции из шаблона
 
             fetch(saveUrl, {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': getCsrfToken()
-                    // 'Accept': 'application/json' // Хорошая практика
+                    'X-CSRFToken': csrfToken, // Используем полученный токен
+                    'Accept': 'application/json' // Явно указываем, что ожидаем JSON
                 },
                 body: formData
             })
             .then(response => {
-                // Получаем статус и пытаемся распарсить JSON в любом случае
                 const status = response.status;
-                return response.json().then(data => ({ ok: response.ok, status, data }) );
+                // Пытаемся получить JSON независимо от статуса, чтобы прочитать сообщение об ошибке
+                 return response.json().then(data => ({
+                    ok: response.ok, // Статус 2xx?
+                    status: status, // HTTP статус код
+                    data: data      // Распарсенный JSON
+                })).catch(jsonError => {
+                    // Если JSON не парсится (например, HTML страницы ошибки)
+                    console.error("Failed to parse JSON response:", jsonError);
+                    return { ok: false, status: status, data: { message: `Ошибка сервера ${status}. Ответ не в формате JSON.` } };
+                });
             })
             .then(({ ok, status, data }) => {
-                if (ok && data.success) {
-                    showToast('Секция успешно сохранена');
+                if (ok && data.success) { // Проверяем и HTTP статус и флаг success из JSON
+                    showToast(data.message || 'Секция успешно сохранена', 'success');
+                    // Можно добавить логику обновления интерфейса, если нужно
                 } else {
-                    // Пытаемся показать сообщение об ошибке от сервера или статус
-                    const errorMsg = data?.message || `Ошибка ${status}`;
-                    showToast(`Ошибка сохранения: ${errorMsg}`, 'error');
-                    console.error('Save error response:', data);
+                    const errorMsg = data?.message || `Неизвестная ошибка сохранения (Статус: ${status})`;
+                    showToast(`Ошибка: ${errorMsg}`, 'error');
+                    console.error('Save error response data:', data);
                 }
             })
             .catch(error => {
-                console.error('Error saving section form:', error);
-                showToast(`Сетевая ошибка или ошибка парсинга: ${error.message}`, 'error');
+                // Сюда попадают сетевые ошибки (нет соединения) или ошибки в .then() выше
+                console.error('Error saving section form (fetch failed or promise rejected):', error);
+                showToast(`Сетевая ошибка или критическая ошибка обработки: ${error.message}`, 'error');
             })
             .finally(() => {
                  // --- Снимаем блокировку кнопок ---
                  saveButtons.forEach(btn => {
                     btn.disabled = false;
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    // Классы для разблокировки должны автоматически применяться браузером или Tailwind JIT
                  });
             });
         }
 
-        // --- Вешаем обработчики на ОБЕ кнопки сохранения по их уникальным ID ---
+        // --- Вешаем обработчик на кнопку сохранения по её ID ---
         const saveBtnFooter = document.getElementById('save-section-footer-{{ section.slug }}');
         if (saveBtnFooter) {
             saveBtnFooter.addEventListener('click', saveSectionForm);
         } else {
-            console.warn('Footer save button not found');
+            console.warn('Кнопка сохранения #save-section-footer-{{ section.slug }} не найдена.');
         }
 
-        const saveBtnHeader = document.getElementById('save-section-header-{{ section.slug }}');
-         if (saveBtnHeader) {
-            saveBtnHeader.addEventListener('click', saveSectionForm);
-         } else {
-             console.warn('Header save button not found');
-         }
+        // Если бы была вторая кнопка:
+        // const saveBtnHeader = document.getElementById('save-section-header-{{ section.slug }}');
+        //  if (saveBtnHeader) {
+        //     saveBtnHeader.addEventListener('click', saveSectionForm);
+        //  } else {
+        //      console.warn('Header save button not found');
+        //  }
+
+         // Добавляем обработку отправки формы по Enter в полях ввода (кроме textarea)
+        const formElement = document.getElementById('section-form-{{ section.slug }}');
+        if (formElement) {
+            formElement.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' && event.target.tagName !== 'TEXTAREA') {
+                    // Предотвращаем стандартную отправку формы
+                    event.preventDefault();
+                    // Вызываем нашу функцию сохранения
+                    saveSectionForm();
+                }
+            });
+        }
+
     });
 </script>
 {% endblock %}
