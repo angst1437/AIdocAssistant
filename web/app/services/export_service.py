@@ -9,17 +9,9 @@ import re
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 from flask import current_app
 from web.app.models import DocumentApp, DocumentSectionContent
 
-# Register fonts for PDF generation
-fonts_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static', 'fonts')
-pdfmetrics.registerFont(TTFont('Times', os.path.join(fonts_dir, 'times.ttf')))
-pdfmetrics.registerFont(TTFont('TimesB', os.path.join(fonts_dir, 'timesbd.ttf')))
-pdfmetrics.registerFont(TTFont('TimesI', os.path.join(fonts_dir, 'timesi.ttf')))
-pdfmetrics.registerFont(TTFont('TimesBI', os.path.join(fonts_dir, 'timesbi.ttf')))
 
 def clean_html_content(html_content):
     """
@@ -276,56 +268,47 @@ def export_to_pdf(document_id):
     gost_title_style = ParagraphStyle(
         name='GOSTTitle',
         parent=styles['Normal'],
-        fontName='Times',  # Using our registered font
+        fontName='Times-Roman',
         fontSize=16,
         leading=18,
         alignment=1,  # Center
-        spaceAfter=12
+        spaceAfter=12,
+        encoding='UTF-8'
     )
     styles.add(gost_title_style)
 
     gost_heading_style = ParagraphStyle(
         name='GOSTHeading',
         parent=styles['Normal'],
-        fontName='TimesB',  # Using our registered bold font
+        fontName='Times-Roman',
         fontSize=14,
         leading=16,
         alignment=1,  # Center
-        spaceAfter=12
+        spaceAfter=12,
+        encoding='UTF-8'
     )
     styles.add(gost_heading_style)
 
     gost_normal_style = ParagraphStyle(
         name='GOSTNormal',
         parent=styles['Normal'],
-        fontName='Times',  # Using our registered font
+        fontName='Times-Roman',
         fontSize=14,
         leading=21,  # 1.5 line spacing
         alignment=0,  # Left
         firstLineIndent=35,  # 1.25 cm
         spaceBefore=0,
-        spaceAfter=0
+        spaceAfter=0,
+        encoding='UTF-8'
     )
     styles.add(gost_normal_style)
-
-    gost_italic_style = ParagraphStyle(
-        name='GOSTItalic',
-        parent=styles['Normal'],
-        fontName='TimesI',  # Using our registered italic font
-        fontSize=14,
-        leading=21,  # 1.5 line spacing
-        alignment=0,  # Left
-        firstLineIndent=35,  # 1.25 cm
-        spaceBefore=0,
-        spaceAfter=0
-    )
-    styles.add(gost_italic_style)
 
     # Build the document
     elements = []
 
     # Add title
-    elements.append(Paragraph(document.title, styles['GOSTTitle']))
+    title_text = document.title.encode('utf-8').decode('utf-8')
+    elements.append(Paragraph(title_text, styles['GOSTTitle']))
     elements.append(Spacer(1, 12))
 
     # Add sections
@@ -334,7 +317,8 @@ def export_to_pdf(document_id):
 
         if section_template.code == 'ТЛ' or section_template.code == 'СИ':
             # Add section title
-            elements.append(Paragraph(section_template.name, styles['GOSTHeading']))
+            title_text = section_template.name.encode('utf-8').decode('utf-8')
+            elements.append(Paragraph(title_text, styles['GOSTHeading']))
             elements.append(Spacer(1, 12))
 
         # Add section content
@@ -347,29 +331,38 @@ def export_to_pdf(document_id):
                     # Process italic formatting
                     parts = para.split('[[italic_start]]')
                     if len(parts) > 1:
-                        # Handle text with italic parts
-                        text = ''
-                        current_pos = 0
-                        
-                        # Add first normal part
-                        if parts[0]:
-                            text = parts[0]
-                            
-                        # Process italic parts
-                        for part in parts[1:]:
-                            if '[[italic_end]]' in part:
-                                italic_part, rest = part.split('[[italic_end]]', 1)
-                                if italic_part:
-                                    text += f'<font name="TimesI">{italic_part}</font>'
-                                if rest:
-                                    text += rest
+                        # Handle italic text
+                        for i, part in enumerate(parts):
+                            if i == 0:
+                                # First part is normal text
+                                if part:
+                                    text = part.encode('utf-8').decode('utf-8')
+                                    elements.append(Paragraph(text, styles['GOSTNormal']))
                             else:
-                                text += part
-                                
-                        elements.append(Paragraph(text, styles['GOSTNormal']))
+                                # Handle italic parts
+                                if '[[italic_end]]' in part:
+                                    italic_part, rest = part.split('[[italic_end]]', 1)
+                                    # Add italic text
+                                    italic_text = italic_part.encode('utf-8').decode('utf-8')
+                                    italic_style = ParagraphStyle(
+                                        name='GOSTItalic',
+                                        parent=styles['GOSTNormal'],
+                                        fontName='Times-Italic',
+                                        encoding='UTF-8'
+                                    )
+                                    elements.append(Paragraph(italic_text, italic_style))
+                                    # Add rest of the text
+                                    if rest:
+                                        text = rest.encode('utf-8').decode('utf-8')
+                                        elements.append(Paragraph(text, styles['GOSTNormal']))
+                                else:
+                                    # If no end marker, treat as normal text
+                                    text = part.encode('utf-8').decode('utf-8')
+                                    elements.append(Paragraph(text, styles['GOSTNormal']))
                     else:
                         # Normal text without formatting
-                        elements.append(Paragraph(para, styles['GOSTNormal']))
+                        text = para.encode('utf-8').decode('utf-8')
+                        elements.append(Paragraph(text, styles['GOSTNormal']))
                     elements.append(Spacer(1, 0))  # No extra space between paragraphs
 
     # Build the PDF
