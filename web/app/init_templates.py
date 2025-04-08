@@ -25,7 +25,7 @@ def init_templates():
                 "slug": "title-page",
                 "description": "Титульный лист отчета о НИР",
                 "order": 1,
-                "editor_type": 1,  # Форма
+                "editor_type": 2,  # Форма
                 "form_schema": [
                     {
                         "name": "organization",

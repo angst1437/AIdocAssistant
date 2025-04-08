@@ -73,7 +73,7 @@
     <div class="w-full md:w-1/6 p-4">
         <div class="section-nav">
             {% for section_item in document.template.sections %}
-            <a href="{{ url_for('documents.edit_section', document_id=document.id, section_id=section_item.id) }}" class="block">
+            <a href="{{ url_for('documents.edit_section', document_id=document.id, section_slug=section_item.slug) }}" class="block">
                 <div class="section-nav-item {% if section_item.id == section.id %}active{% endif %}" title="{{ section_item.name }}">
                     {{ section_item.code }}
                 </div>
@@ -94,7 +94,7 @@
                     <button id="save-section" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Сохранить
                     </button>
-                    <a href="{{ url_for('documents.edit_structured', document_id=document.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <a href="{{ url_for('documents.structure', document_id=document.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Вернуться к документу
                     </a>
                 </div>
@@ -103,26 +103,26 @@
 
         <div class="bg-white shadow overflow-hidden sm:rounded-lg">
             <div class="px-4 py-5 sm:p-6">
-                <form id="section-form">
+                <form id="section-form-{{ section.slug }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                     <!-- Динамическая форма на основе схемы секции -->
                     {% if section.form_schema %}
                         {% for field in section.form_schema %}
                             <div class="mb-4">
-                                <label for="{{ field.name }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                                <label for="section-{{ section.slug }}-{{ field.name }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
 
                                 {% if field.type == 'text' %}
-                                    <input type="text" id="{{ field.name }}" name="{{ field.name }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                    <input type="text" id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                            value="{{ section_content.form_data.get(field.name, '') }}"
                                            {% if field.required %}required{% endif %}>
 
                                 {% elif field.type == 'textarea' %}
-                                    <textarea id="{{ field.name }}" name="{{ field.name }}" rows="3" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                    <textarea id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" rows="3" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                               {% if field.required %}required{% endif %}>{{ section_content.form_data.get(field.name, '') }}</textarea>
 
                                 {% elif field.type == 'select' %}
-                                    <select id="{{ field.name }}" name="{{ field.name }}" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                    <select id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                             {% if field.required %}required{% endif %}>
                                         {% for option in field.options %}
                                             <option value="{{ option.value }}" {% if section_content.form_data.get(field.name) == option.value %}selected{% endif %}>{{ option.label }}</option>
@@ -130,15 +130,17 @@
                                     </select>
 
                                 {% elif field.type == 'date' %}
-                                    <input type="date" id="{{ field.name }}" name="{{ field.name }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                    <input type="date" id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                            value="{{ section_content.form_data.get(field.name, '') }}"
                                            {% if field.required %}required{% endif %}>
 
                                 {% elif field.type == 'checkbox' %}
                                     <div class="mt-1">
-                                        <input type="checkbox" id="{{ field.name }}" name="{{ field.name }}" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                         {# --- ИЗМЕНЕНИЕ --- Добавляем префикс к 'id' #}
+                                        <input type="checkbox" id="section-{{ section.slug }}-{{ field.name }}" name="{{ field.name }}" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
                                                {% if section_content.form_data.get(field.name) %}checked{% endif %}>
-                                        <label for="{{ field.name }}" class="ml-2 text-sm text-gray-700">{{ field.checkbox_label }}</label>
+                                        {# --- ИЗМЕНЕНИЕ --- Добавляем префикс к 'for' #}
+                                        <label for="section-{{ section.slug }}-{{ field.name }}" class="ml-2 text-sm text-gray-700">{{ field.checkbox_label }}</label>
                                     </div>
                                 {% endif %}
 
@@ -156,7 +158,7 @@
                     {% endif %}
 
                     <div class="flex justify-end">
-                        <button type="button" id="save-section-btn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <button type="button" id="save-section-btn-{{ section.slug }}" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             Сохранить
                         </button>
                     </div>
