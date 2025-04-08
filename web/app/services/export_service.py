@@ -14,6 +14,7 @@ from web.app.models import DocumentApp, DocumentSectionContent
 from docx.shared import OxmlElement
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 from docx.oxml.ns import nsdecls
 
 
@@ -39,6 +40,11 @@ def clean_html_content(html_content):
     content = re.sub(r'</i>', '[[italic_end]]', content, flags=re.IGNORECASE)
     content = re.sub(r'<em>', '[[italic_start]]', content, flags=re.IGNORECASE)
     content = re.sub(r'</em>', '[[italic_end]]', content, flags=re.IGNORECASE)
+    
+    # Replace <h1> to <h6> tags with special markers
+    for i in range(1, 7):
+        content = re.sub(fr'<h{i}>', f'[[heading_start_{i}]]', content, flags=re.IGNORECASE)
+        content = re.sub(fr'</h{i}>', f'[[heading_end_{i}]]', content, flags=re.IGNORECASE)
     
     # Preserve list formatting
     content = re.sub(r'<ol>', '[[list_start]]', content, flags=re.IGNORECASE)
@@ -173,6 +179,43 @@ def add_page_number(paragraph):
     fldChar2.set('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}fldCharType', 'end')
     run._element.append(fldChar2)
 
+def add_ToC(paragraph):
+    # Add a new section for the table of contents
+    run = paragraph.add_run()
+    fldChar = OxmlElement('w:fldChar')  # creates a new element
+    fldChar.set(qn('w:fldCharType'), 'begin')  # sets attribute on element
+    instrText = OxmlElement('w:instrText')
+    instrText.set(qn('xml:space'), 'preserve')  # sets attribute on element
+    instrText.text = 'TOC \\o "1-3" \\h \\z \\u'  # change 1-3 depending on heading levels you need
+
+    fldChar2 = OxmlElement('w:fldChar')
+    fldChar2.set(qn('w:fldCharType'), 'separate')
+    fldChar3 = OxmlElement('w:t')
+    fldChar3.text = "Нажмите правой кнопкой мыши и выберите 'Обновить поле'"
+    fldChar2.append(fldChar3)
+
+    fldChar4 = OxmlElement('w:fldChar')
+    fldChar4.set(qn('w:fldCharType'), 'end')
+
+    r_element = run._r
+    r_element.append(fldChar)
+    r_element.append(instrText)
+    r_element.append(fldChar2)
+    r_element.append(fldChar4)
+
+
+def process_heading(docx, heading_text, level):
+    """Process and add a heading to the document with appropriate formatting"""
+    alignment = WD_ALIGN_PARAGRAPH.CENTER if level == 1 else WD_ALIGN_PARAGRAPH.LEFT
+    p = create_paragraph(docx, alignment=alignment, first_line_indent=Cm(0))
+    add_text_run(p, heading_text, is_bold=True)
+    
+    # Set heading level using XML
+    p.style = docx.styles['Normal']  # Use normal style to avoid Word styles
+    outline_lvl = OxmlElement('w:outlineLvl')
+    outline_lvl.set('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}val', str(level - 1))
+    p._element.get_or_add_pPr().append(outline_lvl)
+
 def export_to_docx(document_id):
     """
     Export document to DOCX format according to GOST 7.32-2017
@@ -197,29 +240,42 @@ def export_to_docx(document_id):
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     add_page_number(paragraph)
 
-    # Add title
-    title = create_paragraph(docx, alignment=WD_ALIGN_PARAGRAPH.CENTER)
-    title_run = add_text_run(title, document.title, is_bold=True)
-    title_run.font.size = DOCUMENT_SETTINGS['title_font_size']
+    # Add title (assuming title is on the first page)
+    title_paragraph = create_paragraph(docx, alignment=WD_ALIGN_PARAGRAPH.CENTER)
+    add_text_run(title_paragraph, document.title, is_bold=True)
+    title_paragraph.runs[0].font.size = DOCUMENT_SETTINGS['title_font_size']
 
-    # Add document sections
+    # Add a new page for the Table of Contents
+    docx.add_section(WD_SECTION.NEW_PAGE)
+    
+    # Add the "Оглавление" heading
+    toc_heading = create_paragraph(docx, alignment=WD_ALIGN_PARAGRAPH.CENTER, first_line_indent=Cm(0))
+    add_text_run(toc_heading, "Оглавление", is_bold=True)
+    toc_heading.runs[0].font.size = DOCUMENT_SETTINGS['title_font_size'] # Match title size
+    
+    # Add the Table of Content field
+    toc_field_paragraph = docx.add_paragraph()
+    add_ToC(toc_field_paragraph)
+    
+    # Add document sections (starting on a new page after ToC)
+    docx.add_section(WD_SECTION.NEW_PAGE) # Add new page break before main content
     for section_content in sections:
         content = clean_html_content(section_content.content)
         if not content.strip():  # Skip empty sections
             continue
-
-        # Set paragraph formatting according to section type
-        section_template = section_content.section_template
-        if section_template.code == 'ТЛ' or section_template.code == 'СИ':
-            # Add section header
-            p = create_paragraph(docx, alignment=WD_ALIGN_PARAGRAPH.CENTER)
-            add_text_run(p, section_template.name, is_bold=True)
 
         # Process content
         paragraphs = content.split('\n')
         for para in paragraphs:
             if not para.strip():
                 continue
+
+            # Check for headings
+            for i in range(1, 7):
+                if f'[[heading_start_{i}]]' in para:
+                    heading_text = para.split(f'[[heading_start_{i}]]')[1].split(f'[[heading_end_{i}]]')[0].strip()
+                    process_heading(docx, heading_text, level=i)
+                    para = para.split(f'[[heading_end_{i}]]')[1] if f'[[heading_end_{i}]]' in para else ''
 
             # Check if paragraph contains a list
             if '[[list_start]]' in para:
@@ -348,7 +404,7 @@ def export_to_pdf(document_id):
         section_template = section_content.section_template
 
         if section_template.code == 'ТЛ' or section_template.code == 'СИ':
-            # Add section title
+        # Add section title
             title_text = section_template.name.encode('utf-8').decode('utf-8')
             elements.append(Paragraph(title_text, styles['GOSTHeading']))
             elements.append(Spacer(1, 12))
