@@ -36,7 +36,7 @@
     
     .preview-container p {
         text-indent: 1.25cm;
-        margin-bottom: 0.5cm;
+        margin-bottom: 0;
         text-align: justify;
     }
     
@@ -48,6 +48,19 @@
         font-weight: bold;
         text-align: center;
         margin-bottom: 0.5cm;
+    }
+    
+    .preview-container .section-content p:empty {
+        display: none;
+    }
+    
+    .preview-container .section-content p:first-of-type {
+        text-indent: 1.25cm;
+    }
+    
+    .preview-container .section-content p:not(:first-of-type) {
+        text-indent: 1.25cm;
+        margin-top: 0;
     }
     
     @media print {
@@ -73,43 +86,43 @@
     <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
         <h1 class="text-xl font-bold text-gray-900">Предпросмотр: {{ document.title }}</h1>
         <div class="flex space-x-2">
-            <button onclick="window.print()" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <a href="{{ url_for('documents.edit', document_id=document.id) }}" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 <svg class="mr-2 -ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
                 </svg>
-                Печать
-            </button>
-            <div class="relative" x-data="{ open: false }">
-                <button @click="open = !open" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Экспорт
-                    <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-                <div x-show="open" 
-                     @click.away="open = false"
-                     class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" 
-                     role="menu" 
-                     aria-orientation="vertical" 
-                     aria-labelledby="export-menu-button" 
-                     tabindex="-1">
-                    <a href="{{ url_for('documents.export_document', document_id=document.id, format='docx') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Экспорт в DOCX</a>
-                    <a href="{{ url_for('documents.export_document', document_id=document.id, format='pdf') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Экспорт в PDF</a>
-                </div>
-            </div>
-            <a href="{{ url_for('documents.edit_structured', document_id=document.id) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Вернуться к редактированию
+                Назад
+            </a>
+            <a href="{{ url_for('documents.export_document', document_id=document.id, format='docx') }}" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="mr-2 -ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+                Экспорт в DOCX
+            </a>
+            <a href="{{ url_for('documents.export_document', document_id=document.id, format='pdf') }}" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="mr-2 -ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+                Экспорт в PDF
             </a>
         </div>
     </div>
 </div>
 
 <div class="preview-container">
-    {% for section, content in sections %}
+    {% for section in sections %}
     <div class="section">
-        <div class="section-title">{{ section.name }}</div>
+        {% if section.section_template.code == 'ТЛ' or section.section_template.code == 'СИ' %}
+        <div class="section-title">{{ section.section_template.name }}</div>
+        {% endif %}
         <div class="section-content">
-            {{ content.content|safe }}
+            {% for paragraph in section.content.split('\n') %}
+                {% if paragraph.strip() %}
+                <p>{{ paragraph | safe }}</p>
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
     {% endfor %}

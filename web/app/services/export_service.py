@@ -4,12 +4,66 @@ from docx.shared import Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 from docx.enum.section import WD_SECTION
 from reportlab.lib.pagesizes import A4
+import re
 
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 from flask import current_app
 from web.app.models import DocumentApp, DocumentSectionContent
+
+# Register fonts for PDF generation
+fonts_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static', 'fonts')
+pdfmetrics.registerFont(TTFont('Times', os.path.join(fonts_dir, 'times.ttf')))
+pdfmetrics.registerFont(TTFont('TimesB', os.path.join(fonts_dir, 'timesbd.ttf')))
+pdfmetrics.registerFont(TTFont('TimesI', os.path.join(fonts_dir, 'timesi.ttf')))
+pdfmetrics.registerFont(TTFont('TimesBI', os.path.join(fonts_dir, 'timesbi.ttf')))
+
+def clean_html_content(html_content):
+    """
+    Clean HTML content by removing tags and preserving text formatting.
+    
+    Args:
+        html_content (str): HTML content to clean
+        
+    Returns:
+        str: Cleaned text content
+    """
+    if not html_content:
+        return ""
+        
+    # Replace <br> and <p> tags with newlines
+    content = re.sub(r'<br\s*/?>', '\n', html_content, flags=re.IGNORECASE)
+    content = re.sub(r'</?p\s*/?>', '\n', content, flags=re.IGNORECASE)
+    
+    # Replace <i> and <em> tags with special markers
+    content = re.sub(r'<i>', '[[italic_start]]', content, flags=re.IGNORECASE)
+    content = re.sub(r'</i>', '[[italic_end]]', content, flags=re.IGNORECASE)
+    content = re.sub(r'<em>', '[[italic_start]]', content, flags=re.IGNORECASE)
+    content = re.sub(r'</em>', '[[italic_end]]', content, flags=re.IGNORECASE)
+    
+    # Remove all other HTML tags
+    content = re.sub(r'<[^>]+>', '', content)
+    
+    # Replace HTML entities
+    content = content.replace('&nbsp;', ' ')
+    content = content.replace('&amp;', '&')
+    content = content.replace('&lt;', '<')
+    content = content.replace('&gt;', '>')
+    content = content.replace('&quot;', '"')
+    content = content.replace('&#39;', "'")
+    
+    # Clean up multiple newlines and whitespace
+    content = re.sub(r'\n\s*\n', '\n', content)  # Replace multiple newlines with single newline
+    content = re.sub(r' +', ' ', content)
+    
+    # Remove leading/trailing whitespace and empty lines
+    content = '\n'.join(line for line in content.split('\n') if line.strip())
+    content = content.strip()
+    
+    return content
 
 
 def export_to_docx(document_id):
@@ -60,19 +114,123 @@ def export_to_docx(document_id):
 
             # Add section content
             p = docx.add_paragraph()
-            p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
             p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.ONE_POINT_FIVE
             p.paragraph_format.first_line_indent = Cm(1.25)  # First line indent 1.25 cm
-            run = p.add_run(section_content.content)
-            run.font.name = 'Times New Roman'
-            run.font.size = Pt(14)
+            p.paragraph_format.left_indent = Cm(0)  # Ensure left indent is 0
+            p.paragraph_format.space_before = Pt(0)  # Remove space before paragraph
+            p.paragraph_format.space_after = Pt(0)  # Remove space after paragraph
+            p.paragraph_format.keep_together = True  # Keep paragraph together
+            p.paragraph_format.keep_with_next = False  # Don't keep with next paragraph
+            
+            # Process content with italic formatting
+            content = clean_html_content(section_content.content)
+            if not content.strip():  # Skip empty paragraphs
+                continue
+                
+            # Split content into paragraphs and process each one
+            paragraphs = content.split('\n')
+            for i, para in enumerate(paragraphs):
+                if not para.strip():
+                    continue
+                    
+                if i > 0:  # Add new paragraph for each line after the first
+                    p = docx.add_paragraph()
+                    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                    p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.ONE_POINT_FIVE
+                    p.paragraph_format.first_line_indent = Cm(1.25)
+                    p.paragraph_format.left_indent = Cm(0)
+                    p.paragraph_format.space_before = Pt(0)
+                    p.paragraph_format.space_after = Pt(0)
+                    p.paragraph_format.keep_together = True
+                    p.paragraph_format.keep_with_next = False
+                
+                parts = para.split('[[italic_start]]')
+                
+                # Add first part if it exists
+                if parts[0]:
+                    run = p.add_run(parts[0])
+                    run.font.name = 'Times New Roman'
+                    run.font.size = Pt(14)
+                
+                # Process remaining parts with italic formatting
+                for part in parts[1:]:
+                    if '[[italic_end]]' in part:
+                        italic_part, rest = part.split('[[italic_end]]', 1)
+                        # Add italic part
+                        run = p.add_run(italic_part)
+                        run.font.name = 'Times New Roman'
+                        run.font.size = Pt(14)
+                        run.italic = True
+                        # Add rest of the text
+                        if rest:
+                            run = p.add_run(rest)
+                            run.font.name = 'Times New Roman'
+                            run.font.size = Pt(14)
+                    else:
+                        # If no end marker, treat as normal text
+                        run = p.add_run(part)
+                        run.font.name = 'Times New Roman'
+                        run.font.size = Pt(14)
         else:  # Default paragraph formatting
-            p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
             p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.ONE_POINT_FIVE
             p.paragraph_format.first_line_indent = Cm(1.25)  # First line indent 1.25 cm
-            run = p.add_run(section_content.content)
-            run.font.name = 'Times New Roman'
-            run.font.size = Pt(14)
+            p.paragraph_format.left_indent = Cm(0)  # Ensure left indent is 0
+            p.paragraph_format.space_before = Pt(0)  # Remove space before paragraph
+            p.paragraph_format.space_after = Pt(0)  # Remove space after paragraph
+            p.paragraph_format.keep_together = True  # Keep paragraph together
+            p.paragraph_format.keep_with_next = False  # Don't keep with next paragraph
+            
+            # Process content with italic formatting
+            content = clean_html_content(section_content.content)
+            if not content.strip():  # Skip empty paragraphs
+                continue
+                
+            # Split content into paragraphs and process each one
+            paragraphs = content.split('\n')
+            for i, para in enumerate(paragraphs):
+                if not para.strip():
+                    continue
+                    
+                if i > 0:  # Add new paragraph for each line after the first
+                    p = docx.add_paragraph()
+                    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                    p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.ONE_POINT_FIVE
+                    p.paragraph_format.first_line_indent = Cm(1.25)
+                    p.paragraph_format.left_indent = Cm(0)
+                    p.paragraph_format.space_before = Pt(0)
+                    p.paragraph_format.space_after = Pt(0)
+                    p.paragraph_format.keep_together = True
+                    p.paragraph_format.keep_with_next = False
+                
+                parts = para.split('[[italic_start]]')
+                
+                # Add first part if it exists
+                if parts[0]:
+                    run = p.add_run(parts[0])
+                    run.font.name = 'Times New Roman'
+                    run.font.size = Pt(14)
+                
+                # Process remaining parts with italic formatting
+                for part in parts[1:]:
+                    if '[[italic_end]]' in part:
+                        italic_part, rest = part.split('[[italic_end]]', 1)
+                        # Add italic part
+                        run = p.add_run(italic_part)
+                        run.font.name = 'Times New Roman'
+                        run.font.size = Pt(14)
+                        run.italic = True
+                        # Add rest of the text
+                        if rest:
+                            run = p.add_run(rest)
+                            run.font.name = 'Times New Roman'
+                            run.font.size = Pt(14)
+                    else:
+                        # If no end marker, treat as normal text
+                        run = p.add_run(part)
+                        run.font.name = 'Times New Roman'
+                        run.font.size = Pt(14)
 
     # Save the document
     output_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], 'exports')
@@ -115,63 +273,107 @@ def export_to_pdf(document_id):
     styles = getSampleStyleSheet()
 
     # Create custom styles according to GOST 7.32-2017
-    styles.add(ParagraphStyle(
-        name='Title',
-        parent=styles['Title'],
-        fontName='Times-Roman',
+    gost_title_style = ParagraphStyle(
+        name='GOSTTitle',
+        parent=styles['Normal'],
+        fontName='Times',  # Using our registered font
         fontSize=16,
         leading=18,
         alignment=1,  # Center
         spaceAfter=12
-    ))
+    )
+    styles.add(gost_title_style)
 
-    styles.add(ParagraphStyle(
-        name='Heading',
-        parent=styles['Heading1'],
-        fontName='Times-Roman',
+    gost_heading_style = ParagraphStyle(
+        name='GOSTHeading',
+        parent=styles['Normal'],
+        fontName='TimesB',  # Using our registered bold font
         fontSize=14,
         leading=16,
         alignment=1,  # Center
         spaceAfter=12
-    ))
+    )
+    styles.add(gost_heading_style)
 
-    styles.add(ParagraphStyle(
-        name='Normal',
+    gost_normal_style = ParagraphStyle(
+        name='GOSTNormal',
         parent=styles['Normal'],
-        fontName='Times-Roman',
+        fontName='Times',  # Using our registered font
         fontSize=14,
         leading=21,  # 1.5 line spacing
-        alignment=4,  # Justify
-        firstLineIndent=35,  # ~1.25 cm
-        spaceAfter=6
-    ))
+        alignment=0,  # Left
+        firstLineIndent=35,  # 1.25 cm
+        spaceBefore=0,
+        spaceAfter=0
+    )
+    styles.add(gost_normal_style)
 
-    # Build PDF content
-    content = []
+    gost_italic_style = ParagraphStyle(
+        name='GOSTItalic',
+        parent=styles['Normal'],
+        fontName='TimesI',  # Using our registered italic font
+        fontSize=14,
+        leading=21,  # 1.5 line spacing
+        alignment=0,  # Left
+        firstLineIndent=35,  # 1.25 cm
+        spaceBefore=0,
+        spaceAfter=0
+    )
+    styles.add(gost_italic_style)
+
+    # Build the document
+    elements = []
 
     # Add title
-    content.append(Paragraph(document.title, styles['Title']))
-    content.append(Spacer(1, 12))
+    elements.append(Paragraph(document.title, styles['GOSTTitle']))
+    elements.append(Spacer(1, 12))
 
-    # Add document sections
+    # Add sections
     for section_content in sections:
         section_template = section_content.section_template
 
-        # Add section title
-        content.append(Paragraph(section_template.name, styles['Heading']))
+        if section_template.code == 'ТЛ' or section_template.code == 'СИ':
+            # Add section title
+            elements.append(Paragraph(section_template.name, styles['GOSTHeading']))
+            elements.append(Spacer(1, 12))
 
         # Add section content
-        if section_content.content:
-            # Split content by paragraphs
-            paragraphs = section_content.content.split('\n')
+        content = clean_html_content(section_content.content)
+        if content.strip():
+            # Split content into paragraphs and add each one
+            paragraphs = content.split('\n')
             for para in paragraphs:
                 if para.strip():
-                    content.append(Paragraph(para, styles['Normal']))
-
-        content.append(Spacer(1, 12))
+                    # Process italic formatting
+                    parts = para.split('[[italic_start]]')
+                    if len(parts) > 1:
+                        # Handle text with italic parts
+                        text = ''
+                        current_pos = 0
+                        
+                        # Add first normal part
+                        if parts[0]:
+                            text = parts[0]
+                            
+                        # Process italic parts
+                        for part in parts[1:]:
+                            if '[[italic_end]]' in part:
+                                italic_part, rest = part.split('[[italic_end]]', 1)
+                                if italic_part:
+                                    text += f'<font name="TimesI">{italic_part}</font>'
+                                if rest:
+                                    text += rest
+                            else:
+                                text += part
+                                
+                        elements.append(Paragraph(text, styles['GOSTNormal']))
+                    else:
+                        # Normal text without formatting
+                        elements.append(Paragraph(para, styles['GOSTNormal']))
+                    elements.append(Spacer(1, 0))  # No extra space between paragraphs
 
     # Build the PDF
-    pdf.build(content)
+    pdf.build(elements)
 
     return output_path
 

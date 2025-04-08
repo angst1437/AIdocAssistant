@@ -394,28 +394,19 @@ def update_section(document_id, section_id):
 
 @documents_bp.route('/<int:document_id>/preview')
 @login_required
-def preview_document(document_id):
-    """Предпросмотр документа"""
+def preview(document_id):
+    """Preview document before export"""
     document = DocumentService.get_document(document_id, current_user.id)
     if not document:
         abort(403)
 
-    # Получаем все секции документа
-    sections = db.session.query(
-        DocumentSection, DocumentSectionContent
-    ).join(
-        DocumentSectionContent,
-        DocumentSection.id == DocumentSectionContent.section_id
-    ).filter(
-        DocumentSectionContent.document_id == document.id
-    ).order_by(
-        DocumentSection.order
-    ).all()
-
+    # Get all sections ordered by their position
+    sections = document.sections.order_by(DocumentSectionContent.id).all()
+    
     return render_template('documents/preview.html',
-                           title=f"Предпросмотр - {document.title}",
-                           document=document,
-                           sections=sections)
+                         title=f"Предпросмотр - {document.title}",
+                         document=document,
+                         sections=sections)
 
 
 @documents_bp.route('/<int:document_id>/export/<format>', methods=['GET'])
