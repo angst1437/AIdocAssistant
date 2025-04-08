@@ -1,6 +1,5 @@
 from web.app import create_app, db
 from web.app.models import User, DocumentApp, DocumentSectionContent, TextRecommendation, ErrorReport, LogEntry
-from scripts.init_templates import init_templates
 
 app = create_app()
 
@@ -18,6 +17,4 @@ def make_shell_context():
 
 if __name__ == '__main__':
     with app.app_context():
-        # Инициализация шаблонов при запуске
-        init_templates()
-    app.run(debug=True)
+        app.run(debug=True)
