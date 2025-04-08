@@ -16,7 +16,7 @@
                <div class="border border-gray-200 rounded-md p-4 hover:border-indigo-500 transition-colors">
                    <div class="flex justify-between items-center">
                        <div>
-                           <h4 class="text-base font-medium text-gray-900">{{ section.name }}</h4>
+                           <h4 class="text-base font-medium text-gray-900">{{ section.name }} ({{ section.code }})</h4>
                            <p class="text-sm text-gray-500">{{ section.description }}</p>
                        </div>
                        <a href="{{ url_for('documents.edit_section', document_id=document.id, section_slug=section.slug) }}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -28,7 +28,7 @@
            </div>
        </div>
    </div>
-   
+
    <div class="flex justify-between">
        <a href="{{ url_for('documents.create_options') }}" class="text-indigo-600 hover:text-indigo-900">
            Вернуться к выбору способа создания
@@ -39,4 +39,3 @@
    </div>
 </div>
 {% endblock %}
-

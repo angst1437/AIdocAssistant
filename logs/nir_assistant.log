@@ -86,3 +86,4 @@ sqlalchemy.exc.NoForeignKeysError: Could not determine join condition between pa
 2025-04-07 13:09:29,351 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
 2025-04-07 13:11:24,355 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
 2025-04-07 13:11:41,536 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:72]
+2025-04-08 14:39:35,765 INFO: NIR Assistant startup [in C:\Users\danil\AIdocAssistant\web\app\__init__.py:81]

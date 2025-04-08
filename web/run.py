@@ -1,6 +1,6 @@
 from web.app import create_app, db
 from web.app.models import User, DocumentApp, DocumentSectionContent, TextRecommendation, ErrorReport, LogEntry
-from web.app.init_templates import init_templates
+from scripts.init_templates import init_templates
 
 app = create_app()
 
