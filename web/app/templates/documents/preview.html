@@ -56,11 +56,34 @@
     
     .preview-container .section-content p:first-of-type {
         text-indent: 1.25cm;
+        text-align: justify;
     }
     
     .preview-container .section-content p:not(:first-of-type) {
         text-indent: 1.25cm;
         margin-top: 0;
+        text-align: justify;
+    }
+    
+    .preview-container .section-content p strong,
+    .preview-container .section-content p b {
+        text-align: center;
+        display: block;
+    }
+    
+    .preview-container .section-content ol {
+        list-style-type: decimal;
+        margin-left: 1.25cm;
+        padding-left: 0.5cm;
+        text-align: justify;
+    }
+    
+    .preview-container .section-content ol li {
+        margin-bottom: 0.5cm;
+    }
+    
+    .preview-container .section-content ol li:last-child {
+        margin-bottom: 0;
     }
     
     @media print {
@@ -120,7 +143,11 @@
         <div class="section-content">
             {% for paragraph in section.content.split('\n') %}
                 {% if paragraph.strip() %}
-                <p>{{ paragraph | safe }}</p>
+                    {% if paragraph.startswith('<ol>') or paragraph.startswith('<ul>') %}
+                        {{ paragraph | safe }}
+                    {% else %}
+                        <p>{{ paragraph | safe }}</p>
+                    {% endif %}
                 {% endif %}
             {% endfor %}
         </div>
