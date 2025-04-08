@@ -11,6 +11,10 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
 from flask import current_app
 from web.app.models import DocumentApp, DocumentSectionContent
+from docx.shared import OxmlElement
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import nsdecls
 
 
 def clean_html_content(html_content):
@@ -145,14 +149,29 @@ def process_list_items(docx, list_items):
     for i, item in enumerate(list_items[1:], 1):  # Skip first empty item
         item = item.split('[[list_item_end]]')[0].strip()
         if item:
-            p = create_paragraph(docx, first_line_indent=Cm(0))
-            p.paragraph_format.left_indent = Cm(1.25)  # Indent list items
+            p = create_paragraph(docx, first_line_indent=Cm(1.25))
             
             # Add list number
             add_text_run(p, f"{i}. ")
             
             # Add list item text
             process_italic_text(p, item)
+
+def add_page_number(paragraph):
+    """Add page number to paragraph"""
+    run = paragraph.add_run()
+    fldChar1 = OxmlElement('w:fldChar')
+    fldChar1.set('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}fldCharType', 'begin')
+    run._element.append(fldChar1)
+
+    instrText = OxmlElement('w:instrText')
+    instrText.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+    instrText.text = "PAGE"
+    run._element.append(instrText)
+
+    fldChar2 = OxmlElement('w:fldChar')
+    fldChar2.set('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}fldCharType', 'end')
+    run._element.append(fldChar2)
 
 def export_to_docx(document_id):
     """
@@ -171,6 +190,13 @@ def export_to_docx(document_id):
     docx = DocxDocument()
     setup_document_formatting(docx)
 
+    # Add page numbers to footer
+    section = docx.sections[0]
+    footer = section.footer
+    paragraph = footer.paragraphs[0]
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    add_page_number(paragraph)
+
     # Add title
     title = create_paragraph(docx, alignment=WD_ALIGN_PARAGRAPH.CENTER)
     title_run = add_text_run(title, document.title, is_bold=True)
@@ -182,64 +208,40 @@ def export_to_docx(document_id):
         if not content.strip():  # Skip empty sections
             continue
 
-        # Check if this section contains a list
-        has_list = '[[list_start]]' in content
-        
         # Set paragraph formatting according to section type
         section_template = section_content.section_template
         if section_template.code == 'ТЛ' or section_template.code == 'СИ':
             # Add section header
             p = create_paragraph(docx, alignment=WD_ALIGN_PARAGRAPH.CENTER)
             add_text_run(p, section_template.name, is_bold=True)
-            
-            # Process content before list (if any)
-            if has_list:
-                before_list = content.split('[[list_start]]')[0].strip()
+
+        # Process content
+        paragraphs = content.split('\n')
+        for para in paragraphs:
+            if not para.strip():
+                continue
+
+            # Check if paragraph contains a list
+            if '[[list_start]]' in para:
+                # Process content before list
+                before_list = para.split('[[list_start]]')[0].strip()
                 if before_list:
                     p = create_paragraph(docx)
                     process_italic_text(p, before_list)
-                
+
                 # Process list
-                list_items = content.split('[[list_start]]')[1].split('[[list_end]]')[0].split('[[list_item]]')
+                list_items = para.split('[[list_start]]')[1].split('[[list_end]]')[0].split('[[list_item]]')
                 process_list_items(docx, list_items)
-                
-                # Process content after list (if any)
-                after_list = content.split('[[list_end]]')[1].strip() if '[[list_end]]' in content else ''
+
+                # Process content after list
+                after_list = para.split('[[list_end]]')[1].strip() if '[[list_end]]' in para else ''
                 if after_list:
                     p = create_paragraph(docx)
                     process_italic_text(p, after_list)
             else:
-                # Process regular content
-                paragraphs = content.split('\n')
-                for para in paragraphs:
-                    if para.strip():
-                        p = create_paragraph(docx)
-                        process_italic_text(p, para)
-        else:
-            # Process regular content
-            if has_list:
-                # Split content into parts before, during, and after the list
-                before_list = content.split('[[list_start]]')[0].strip()
-                if before_list:
-                    p = create_paragraph(docx)
-                    process_italic_text(p, before_list)
-                
-                # Process list
-                list_items = content.split('[[list_start]]')[1].split('[[list_end]]')[0].split('[[list_item]]')
-                process_list_items(docx, list_items)
-                
-                # Process content after list (if any)
-                after_list = content.split('[[list_end]]')[1].strip() if '[[list_end]]' in content else ''
-                if after_list:
-                    p = create_paragraph(docx)
-                    process_italic_text(p, after_list)
-            else:
-                # Process regular content
-                paragraphs = content.split('\n')
-                for para in paragraphs:
-                    if para.strip():
-                        p = create_paragraph(docx)
-                        process_italic_text(p, para)
+                # Process regular paragraph
+                p = create_paragraph(docx)
+                process_italic_text(p, para)
 
     # Save the document
     output_dir = os.path.join(current_app.config['UPLOAD_FOLDER'], 'exports')
