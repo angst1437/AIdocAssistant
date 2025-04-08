@@ -1,33 +1,30 @@
 ﻿import os
 import click
-from flask import current_app # Используем current_app для доступа к конфигурации
+from flask import current_app
 from flask_migrate import upgrade
-from web.app import db # Импортируем db напрямую
+from web.app import db
 
 def run_reset():
     """Удаляет файл БД SQLite и применяет миграции."""
+    web_folder = os.path.abspath(os.path.join(current_app.root_path, '..'))
+    migrations_dir = os.path.join(web_folder, 'migrations')
+
     db_path_uri = current_app.config.get('SQLALCHEMY_DATABASE_URI')
+    db_file_path = None
 
-    if not db_path_uri or not db_path_uri.startswith('sqlite:///'):
-        click.echo("Ошибка: Не удалось определить путь к SQLite базе данных или используется не SQLite.", err=True)
-        return False # Возвращаем False при ошибке
-
-    # Извлекаем путь к файлу из URI
-    if db_path_uri.startswith('sqlite:///'):
+    if db_path_uri and db_path_uri.startswith('sqlite:///'):
         db_file_path = db_path_uri[len('sqlite:///'):]
+        db_file_path = os.path.abspath(db_file_path)
     else:
-         click.echo(f"Неподдерживаемый формат URI базы данных: {db_path_uri}", err=True)
-         return False
+        click.echo("Ошибка: Не удалось определить путь к SQLite базе данных из конфигурации.", err=True)
+        return False
 
-    # Нормализуем путь (важно для Windows)
-    db_file_path = os.path.abspath(db_file_path)
-    instance_folder = os.path.dirname(db_file_path) # Папка instance/
-
+    # --- Удаление БД ---
     click.echo("-" * 40)
     click.echo(f"ПРЕДУПРЕЖДЕНИЕ: Будет удалена база данных: {db_file_path}")
     if not click.confirm("Вы уверены, что хотите продолжить? ВСЕ ДАННЫЕ БУДУТ ПОТЕРЯНЫ!"):
         click.echo("Операция отменена.")
-        return False # Возвращаем False при отмене
+        return False
 
     # 1. Удаляем старый файл базы данных
     try:
@@ -36,9 +33,6 @@ def run_reset():
             click.echo(f"Файл базы данных удален: {db_file_path}")
         else:
             click.echo("Файл базы данных не найден, удаление не требуется.")
-        # Убедимся, что папка instance существует для новой БД
-        os.makedirs(instance_folder, exist_ok=True)
-
     except OSError as e:
         click.echo(f"Ошибка при удалении файла БД: {e}", err=True)
         return False
@@ -47,15 +41,16 @@ def run_reset():
     click.echo("Применение миграций для создания структуры БД...")
     try:
         # Проверка папки миграций
-        migrations_dir = os.path.join(current_app.root_path, '..', 'migrations')
+        click.echo(f"Проверка папки миграций: {migrations_dir}")
         if not os.path.exists(migrations_dir):
-             click.echo(f"ОШИБКА: Папка миграций не найдена по пути: {migrations_dir}", err=True)
-             click.echo("Пожалуйста, запустите 'flask db init' и 'flask db migrate' хотя бы один раз.", err=True)
-             return False
+            click.echo(f"ОШИБКА: Папка миграций не найдена.", err=True)
+            click.echo(f"Убедитесь, что папка '{migrations_dir}' существует.", err=True)
+            click.echo("Запустите 'flask db init --directory web/migrations' (если необходимо) и 'flask db migrate'.", err=True)
+            return False
 
         upgrade() # Эта функция из flask_migrate создаст таблицы
         click.echo("Структура базы данных создана/обновлена.")
-        return True # Возвращаем True при успехе
+        return True
     except Exception as e:
         click.echo(f"Ошибка во время применения миграций (flask db upgrade): {e}", err=True)
         # Попытаемся откатить сессию, если ошибка произошла на стадии сидинга

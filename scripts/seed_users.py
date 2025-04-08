@@ -1,6 +1,6 @@
 ﻿import click
-from web.app import db # Импорт db
-from web.app.models import User # Импорт модели User
+from web.app import db
+from web.app.models import User
 
 def run_seed():
     """Создает тестовых пользователей."""
@@ -27,4 +27,4 @@ def run_seed():
         click.echo(f"{users_created_count} новых пользователей подготовлены.")
     else:
         click.echo("Новые пользователи не добавлялись (уже существуют).")
-    return True # Успех
+    return True

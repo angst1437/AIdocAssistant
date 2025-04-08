@@ -4,6 +4,9 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+instance_path = os.path.join(basedir, 'instance')
+os.makedirs(instance_path, exist_ok=True)
 
 class Config:
     WTF_CSRF_ENABLED = True
