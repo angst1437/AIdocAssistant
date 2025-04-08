@@ -314,49 +314,77 @@ def edit_section(document_id, section_slug):
         for content in DocumentSectionContent.query.filter_by(document_id=document.id).all()
     }
 
-    # Выбираем шаблон в зависимости от типа редактора
-    if section.editor_type == 1:  # Форма
-        if section.slug == 'table-of-contents':
-            return render_template('documents/section_toc.html',
-                                   title=f"{document.title} - {section.name}",
-                                   document=document,
-                                   section=section,
-                                   section_content=section_content,
-                                   template_sections=template_sections,
-                                   existing_sections=existing_sections)
-        else:
-            return render_template('documents/section_form.html',
-                                   title=f"{document.title} - {section.name}",
-                                   document=document,
-                                   section=section,
-                                   section_content=section_content,
-                                   template_sections=template_sections,
-                                   existing_sections=existing_sections)
-    elif section.editor_type == 2:  # Редактор с ИИ
-        return render_template('documents/section_editor.html',
-                               title=f"{document.title} - {section.name}",
-                               document=document,
-                               section=section,
-                               section_content=section_content,
-                               template_sections=template_sections,
-                               existing_sections=existing_sections)
-    elif section.editor_type == 3:  # Смешанный
+    # --- !!! ВАЖНО: Декодируем form_schema !!! ---
+    form_schema_data = None
+    if section.form_schema:
+        try:
+            # Если в БД хранится строка JSON
+            if isinstance(section.form_schema, str):
+                 form_schema_data = json.loads(section.form_schema)
+            # Если тип поля в БД уже JSON (например, PostgreSQL)
+            else:
+                 form_schema_data = section.form_schema
+        except json.JSONDecodeError:
+            current_app.logger.error(f"Ошибка декодирования JSON для form_schema секции ID {section.id}")
+            form_schema_data = [] # Используем пустой список, чтобы шаблон не падал
+
+    EDITOR_TYPE_RICH_TEXT = 1
+    EDITOR_TYPE_FORM = 2
+    EDITOR_TYPE_MIXED = 3
+    EDITOR_TYPE_GENERATED = 4
+
+    template_name = None  # Инициализируем
+
+    if section.editor_type == EDITOR_TYPE_FORM:  # Тип 2 - Чистая форма
+        template_name = 'documents/section_form.html'
+
+    elif section.editor_type == EDITOR_TYPE_RICH_TEXT:  # Тип 1 - Редактор
+        template_name = 'documents/section_editor.html'  # Шаблон с CKEditor или аналогом
+
+    elif section.editor_type == EDITOR_TYPE_MIXED:  # Тип 3 - Смешанный
+        # Здесь можно добавить более специфичную логику на основе section.slug, если нужно
         if section.slug == 'bibliography':
-            return render_template('documents/section_bibliography.html',
-                                   title=f"{document.title} - {section.name}",
-                                   document=document,
-                                   section=section,
-                                   section_content=section_content,
-                                   template_sections=template_sections,
-                                   existing_sections=existing_sections)
+            template_name = 'documents/section_bibliography.html'  # Пример спец. шаблона для библиографии
+        elif section.slug == 'executors':
+            template_name = 'documents/section_executors.html'  # Пример спец. шаблона для исполнителей
+        elif section.slug == 'appendices':
+            template_name = 'documents/section_appendices.html'  # Пример спец. шаблона для приложений
         else:
-            return render_template('documents/section_mixed.html',
-                                   title=f"{document.title} - {section.name}",
-                                   document=document,
-                                   section=section,
-                                   section_content=section_content,
-                                   template_sections=template_sections,
-                                   existing_sections=existing_sections)
+            # Общий шаблон для смешанных типов (напр., Реферат, Термины, Сокращения)
+            # Он должен уметь рендерить и form_schema, и, возможно, область редактора/списков
+            template_name = 'documents/section_mixed.html'
+
+    elif section.editor_type == EDITOR_TYPE_GENERATED:  # Тип 4 - Генерируемый
+        if section.slug == 'table-of-contents':
+            template_name = 'documents/section_toc.html'  # Шаблон для отображения Содержания
+        else:
+            # Заглушка для других генерируемых секций
+            template_name = 'documents/section_generated_readonly.html'  # Просто отображение
+
+    else:  # Неизвестный тип редактора
+        current_app.logger.warning(
+            f"Неизвестный editor_type '{section.editor_type}' для секции slug '{section.slug}'. Используется шаблон по умолчанию.")
+        # Можно использовать section_form.html или section_editor.html как запасной вариант
+        template_name = 'documents/section_form.html'  # Или section_editor.html
+
+    # Убедимся, что шаблон был выбран
+    if template_name is None:
+        # Этого не должно произойти, если все типы обработаны, но для надежности
+        current_app.logger.error(
+            f"Не удалось выбрать шаблон для editor_type '{section.editor_type}', slug '{section.slug}'.")
+        abort(500)  # Внутренняя ошибка сервера
+
+    # --- Передача данных в шаблон ---
+    return render_template(template_name,  # Используем выбранное имя шаблона
+                           title=f"{document.title} - {section.name}",
+                           document=document,
+                           section=section,
+                           section_content=section_content,
+                           template_sections=template_sections,  # Для навигации
+                           existing_sections=existing_sections,  # Для навигации
+                           form_schema=form_schema_data  # Передаем декодированную схему (нужна для Form и Mixed)
+                           )
+
 
 
 @documents_bp.route('/<int:document_id>/section/<int:section_id>/update', methods=['POST'])
